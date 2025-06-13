@@ -5,6 +5,7 @@ const protect = require('../middleware/authMiddleware');
 const Treasury = require('../models/Treasury');
 const Transaction = require('../models/Transaction'); // لإنشاء سجلات المعاملات
 const User = require('../models/User'); // لجلب بيانات المهندس
+const Project = require('../models/Project'); // NEW: لفلترة المشروع
 
 // @desc    إنشاء خزينة رئيسية (إذا لم تكن موجودة) أو خزينة عهد
 //          للاستخدام الداخلي أو الإعداد الأولي فقط
@@ -210,7 +211,7 @@ router.post('/withdrawal', protect(['admin', 'account_manager']), async (req, re
 // @route   POST /api/treasuries/assign-custody
 // @access  Private (فقط للآدمن ومدير الحسابات)
 router.post('/assign-custody', protect(['admin', 'account_manager']), async (req, res) => {
-    const { engineerId, amount, description } = req.body;
+    const { engineerId, amount, description, projectId } = req.body; // NEW: Add projectId
 
     if (!engineerId || !amount || amount <= 0) {
         return res.status(400).json({ message: 'معرف المهندس والمبلغ الموجب مطلوبان.' });
@@ -218,12 +219,30 @@ router.post('/assign-custody', protect(['admin', 'account_manager']), async (req
     if (!description) {
         return res.status(400).json({ message: 'الرجاء توفير وصف لتعيين العهدة.' });
     }
+    // NEW: projectId is now required for custody assignment
+    if (!projectId) {
+        return res.status(400).json({ message: 'الرجاء اختيار مشروع لتعيين العهدة.' });
+    }
 
     try {
         const engineer = await User.findById(engineerId);
         if (!engineer || engineer.role !== 'engineer') {
             return res.status(404).json({ message: 'المهندس غير موجود أو ليس مهندساً.' });
         }
+
+        // NEW: Check if the project exists
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'المشروع المحدد غير موجود.' });
+        }
+        // NEW: Optional - Check if the engineer is actually assigned to this project
+        // This is a business logic decision. For now, we allow assigning custody to an engineer for any project.
+        // If you want to enforce that the engineer must be assigned to the project, uncomment/add similar logic.
+        /*
+        if (project.engineerId && project.engineerId.toString() !== engineerId) {
+            return res.status(400).json({ message: 'المهندس المحدد ليس مسؤولاً عن هذا المشروع.' });
+        }
+        */
 
         const mainTreasury = await Treasury.findOne({ type: 'main' });
         if (!mainTreasury) {
@@ -257,10 +276,11 @@ router.post('/assign-custody', protect(['admin', 'account_manager']), async (req
         await Transaction.create({
             amount,
             type: 'custody_assignment',
-            description: `تحويل عهدة إلى ${engineer.username}: ${description}`,
+            description: `تحويل عهدة إلى ${engineer.username} للمشروع ${project.name}: ${description}`, // NEW: Include project name in description
             date: new Date(),
             treasury: mainTreasury._id, // المعاملة الأصلية من الخزينة الرئيسية
             relatedUser: engineerId, // المهندس الذي استلم العهدة
+            relatedProject: projectId, // NEW: Link to project
             createdBy: req.user._id,
         });
 
@@ -268,10 +288,11 @@ router.post('/assign-custody', protect(['admin', 'account_manager']), async (req
         await Transaction.create({
             amount,
             type: 'income_to_custody', // نوع جديد لإيراد العهدة
-            description: `استلام عهدة من الشركة: ${description}`,
+            description: `استلام عهدة من الشركة للمشروع ${project.name}: ${description}`, // NEW: Include project name in description
             date: new Date(),
             treasury: engineerCustodyTreasury._id, // خزينة العهدة
             relatedUser: engineerId,
+            relatedProject: projectId, // NEW: Link to project
             createdBy: req.user._id,
         });
 

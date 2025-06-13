@@ -11,11 +11,11 @@ const contractorRoutes = require('./routes/contractorRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
-const treasuryRoutes = require('./routes/treasuryRoutes');     // NEW: استيراد راوتات الخزينة
-const transactionRoutes = require('./routes/transactionRoutes'); // NEW: استيراد راوتات المعاملات
+const treasuryRoutes = require('./routes/treasuryRoutes');     // استيراد راوتات الخزينة
+const transactionRoutes = require('./routes/transactionRoutes'); // استيراد راوتات المعاملات
 const cors = require('cors');
 const User = require('./models/User');
-const Treasury = require('./models/Treasury'); // NEW: استيراد موديل Treasury
+const Treasury = require('./models/Treasury'); // استيراد موديل Treasury
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
@@ -88,8 +88,8 @@ app.use('/api/contractors', contractorRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
-app.use('/api/treasuries', treasuryRoutes);         // NEW: استخدام راوتات الخزينة
-app.use('/api/transactions', transactionRoutes);   // NEW: استخدام راوتات المعاملات
+app.use('/api/treasuries', treasuryRoutes);      // استخدام راوتات الخزينة
+app.use('/api/transactions', transactionRoutes);  // استخدام راوتات المعاملات
 
 // تقديم الملفات الثابتة (Static Files) من مجلد 'public'
 app.use(express.static(path.join(__dirname, '../public')));

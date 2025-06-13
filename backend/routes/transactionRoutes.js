@@ -3,31 +3,55 @@ const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/authMiddleware');
 const Transaction = require('../models/Transaction');
+const Treasury = require('../models/Treasury'); // Needed for engineer treasury check
 
-// @desc    جلب جميع المعاملات (للمديرين فقط)
+// @desc    جلب جميع المعاملات بناءً على الفلاتر (النوع، المستخدم، المشروع، الخزينة)
 // @route   GET /api/transactions
-// @access  Private (فقط للآدمن ومدير الحسابات)
-router.get('/', protect(['admin', 'account_manager']), async (req, res) => {
-    const { type, treasuryId, userId, projectId, startDate, endDate, search } = req.query;
+// @access  Private (يتطلب تسجيل دخول - صلاحيات مرنة)
+router.get('/', protect(), async (req, res) => {
+    const { type, relatedUser, relatedProject, treasuryId, startDate, endDate, search } = req.query; // Removed userId, projectId from destructuring as we'll use relatedUser/relatedProject
+    const currentUserRole = req.user.role;
+    const currentUserId = req.user._id;
+
     let query = {};
 
+    // فلترة حسب النوع
     if (type && type !== 'all') {
         query.type = type;
     }
+
+    // فلترة حسب المستخدم المرتبط (مثل المهندس في عهدته)
+    if (currentUserRole === 'engineer') {
+        // المهندس يرى فقط معاملاته الخاصة
+        // نضمن هنا أن الـ relatedUser دائماً هو المهندس المسجل دخوله
+        if (relatedUser && relatedUser !== currentUserId.toString()) {
+            return res.status(403).json({ message: 'ليس لديك صلاحية لعرض معاملات مستخدم آخر.' });
+        }
+        query.relatedUser = currentUserId; 
+    } else { // آدمن أو مدير حسابات (يمكنهم البحث عن معاملات لأي مستخدم)
+        if (relatedUser) { // استخدم relatedUser الذي يأتي من الـ frontend
+            query.relatedUser = relatedUser;
+        }
+    }
+    
+    // فلترة حسب المشروع المرتبط
+    if (relatedProject) { // استخدم relatedProject الذي يأتي من الـ frontend
+        query.relatedProject = relatedProject;
+    }
+    
+    // فلترة حسب الخزينة (إذا أردت جلب معاملات خزينة معينة)
     if (treasuryId) {
         query.treasury = treasuryId;
     }
-    if (userId) {
-        query.relatedUser = userId;
-    }
-    if (projectId) {
-        query.relatedProject = projectId;
-    }
+    
+    // فلترة حسب نطاق التاريخ
     if (startDate || endDate) {
         query.date = {};
         if (startDate) query.date.$gte = new Date(startDate);
         if (endDate) query.date.$lte = new Date(endDate);
     }
+
+    // فلترة حسب البحث في الوصف
     if (search) {
         query.description = { $regex: search, $options: 'i' };
     }
@@ -35,9 +59,9 @@ router.get('/', protect(['admin', 'account_manager']), async (req, res) => {
     try {
         const transactions = await Transaction.find(query)
             .populate('treasury', 'name type userId')
-            .populate('relatedUser', 'username')
-            .populate('relatedProject', 'name')
-            .populate('createdBy', 'username')
+            .populate('relatedUser', 'username') // جلب اسم المستخدم المرتبط (المهندس)
+            .populate('relatedProject', 'name') // جلب اسم المشروع المرتبط
+            .populate('createdBy', 'username')   // جلب اسم المستخدم الذي أنشأ المعاملة
             .sort({ date: -1, createdAt: -1 }); // فرز حسب التاريخ ثم وقت الإنشاء (الأحدث أولاً)
 
         res.json(transactions);
@@ -56,16 +80,18 @@ router.get('/treasury/:treasuryId', protect(), async (req, res) => {
     const treasuryId = req.params.treasuryId;
 
     try {
-        const treasury = await Transaction.findOne({_id: treasuryId, type: 'custody'});
-        // يمكن إضافة فلترة هنا للوصول إلى الخزينة
+        // التأكد من أن الخزينة موجودة
+        const treasury = await Treasury.findById(treasuryId);
+        if (!treasury) {
+            return res.status(404).json({ message: 'الخزينة غير موجودة.' });
+        }
+
         // إذا كان المستخدم مهندس، تأكد أن خزينة العهدة تخصه
         if (userRole === 'engineer') {
-            const engineerTreasury = await Treasury.findOne({ _id: treasuryId, userId: userId, type: 'custody' });
-            if (!engineerTreasury) {
+            if (treasury.type !== 'custody' || treasury.userId.toString() !== userId.toString()) {
                 return res.status(403).json({ message: 'ليس لديك صلاحية لعرض معاملات هذه الخزينة.' });
             }
         }
-        // للآدمن ومدير الحسابات، لا توجد قيود إضافية هنا (protect middleware يكفي)
 
         const transactions = await Transaction.find({ treasury: treasuryId })
             .populate('treasury', 'name type userId')

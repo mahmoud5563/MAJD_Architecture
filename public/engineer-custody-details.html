@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل عهد المهندسين - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .engineer-selection-section,
+        .project-selection-section { /* Added project-selection-section */
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .engineer-selection-section label,
+        .project-selection-section label { /* Added project-selection-section label */
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 0;
+        }
+        .engineer-selection-section select,
+        .project-selection-section select { /* Added project-selection-section select */
+            flex: 1;
+            min-width: 200px;
+        }
+        .custody-summary-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .summary-card.custody {
+            background-color: var(--primary-light);
+            color: var(--white-color);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+        }
+        .summary-card.custody h4 {
+            color: var(--white-color);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        .summary-card.custody p {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 0;
+            color: var(--white-color);
+        }
+        .summary-card.custody.expenses {
+            background-color: var(--error-color);
+        }
+        .summary-card.custody.remaining {
+            background-color: var(--success-color);
+        }
+
+        /* Specific styles for hiding elements based on role */
+        .engineer-view-only {
+            display: none; /* Hidden by default, shown via JS for engineers */
+        }
+        .admin-manager-view-only {
+            display: flex; /* Shown by default for admin/manager, hidden for engineer */
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <!-- NEW: Engineer Custody Details Link -->
+                    <li><a href="engineer-custody-details.html" class="active"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    <!-- END NEW -->
+                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>تفاصيل عهد المهندسين</h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay">الآدمن</span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Engineer Selection (Admin/Account Manager Only) -->
+            <section class="engineer-selection-section admin-manager-view-only">
+                <label for="engineerSelectFilter">اختر المهندس:</label>
+                <select id="engineerSelectFilter" class="select-filter">
+                    <option value="">اختر مهندس لعرض عهدته</option>
+                    <!-- Engineers will be loaded here -->
+                </select>
+            </section>
+
+            <!-- Project Selection (Admin/Account Manager Only, visible after engineer selection) -->
+            <section class="project-selection-section admin-manager-view-only" style="display: none;">
+                <label for="projectSelectFilter">اختر المشروع:</label>
+                <select id="projectSelectFilter" class="select-filter">
+                    <option value="">كل المشاريع</option>
+                    <!-- Projects will be loaded here -->
+                </select>
+            </section>
+
+            <!-- Engineer Name Display -->
+            <h3 style="text-align: right; margin-bottom: 20px; color: var(--primary-dark);">
+                عهدة المهندس: <span id="selectedEngineerName"></span>
+            </h3>
+
+            <!-- Custody Summary Cards -->
+            <section class="custody-summary-cards">
+                <div class="summary-card custody initial-custody">
+                    <h4>إجمالي العهد المستلمة</h4>
+                    <p><span id="totalAssignedCustody">0.00</span> EGP</p>
+                </div>
+                <div class="summary-card custody expenses">
+                    <h4>إجمالي المصروفات من العهدة</h4>
+                    <p><span id="totalSpentFromCustody">0.00</span> EGP</p>
+                </div>
+                <div class="summary-card custody remaining">
+                    <h4>الرصيد المتبقي في العهدة</h4>
+                    <p><span id="remainingCustodyBalance">0.00</span> EGP</p>
+                </div>
+            </section>
+
+            <!-- Custody Transactions Table -->
+            <section class="data-section">
+                <div class="section-header">
+                    <h3>سجل مصروفات العهدة</h3>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>المبلغ (جنيه)</th>
+                                <th>الوصف</th>
+                                <th>المشروع</th>
+                                <th>تم بواسطة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="custodyExpensesTableBody">
+                            <tr><td colspan="5">لا توجد مصروفات عهدة لعرضها.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/engineer-custody-details.js"></script>
+</body>
+</html>

@@ -9,6 +9,28 @@
     <link rel="stylesheet" href="css/forms.css">
     <link rel="stylesheet" href="css/table.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .assign-custody-section {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        .assign-custody-section h3 {
+            text-align: right;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+        /* Hide for engineer role */
+        .admin-manager-only {
+            display: block; /* Default for admin/manager */
+        }
+        /* Specific override for project selection section */
+        .project-selection-custody {
+            display: none; /* Hidden by default, shown by JS */
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -26,6 +48,7 @@
                     <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
                     <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
                     <li><a href="custody-treasury.html" class="active"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i>عهد المهندسين</a></li>
                     <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
                     <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
@@ -51,49 +74,65 @@
                 </div>
             </header>
 
-            <section class="form-section admin-manager-only">
-                <div class="form-card">
-                    <h3>تعيين عهدة لمهندس</h3>
-                    <form id="assignCustodyForm">
-                        <div class="form-group">
-                            <label for="engineerSelect">المهندس</label>
-                            <select id="engineerSelect" required>
-                                <option value="">اختر مهندس</option>
-                                <!-- Engineers will be loaded here by JavaScript -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="custodyAmount">المبلغ (جنيه)</label>
-                            <input type="number" id="custodyAmount" min="0.01" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="custodyDescription">الوصف</label>
-                            <textarea id="custodyDescription" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">تعيين عهدة</button>
-                    </form>
-                </div>
+            <!-- Engineer Custody Balance (Engineer View Only) -->
+            <section class="admin-manager-only" id="custodyBalanceDisplaySection" style="display: none;">
+                <p id="custodyBalanceDisplay" class="status-info" style="text-align: right; font-size: 1.2rem; font-weight: bold;"></p>
             </section>
 
-            <section class="data-section" style="margin-top: 30px;">
+            <!-- Assign Custody Section (Admin/Account Manager Only) -->
+            <section class="assign-custody-section admin-manager-only">
+                <h3>تعيين عهدة لمهندس</h3>
+                <form id="assignCustodyForm">
+                    <div class="form-group">
+                        <label for="engineerSelect">المهندس</label>
+                        <select id="engineerSelect" required>
+                            <option value="">اختر مهندس</option>
+                            <!-- Engineers will be loaded here by JavaScript -->
+                        </select>
+                    </div>
+
+                    <!-- NEW: Project Selection Field -->
+                    <div class="form-group project-selection-custody">
+                        <label for="projectSelect">المشروع</label>
+                        <select id="projectSelect" required>
+                            <option value="">اختر مشروع</option>
+                            <!-- Projects will be loaded here by JavaScript after engineer selection -->
+                        </select>
+                    </div>
+                    <!-- END NEW -->
+
+                    <div class="form-group">
+                        <label for="custodyAmount">المبلغ</label>
+                        <input type="number" id="custodyAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="custodyDescription">الوصف</label>
+                        <textarea id="custodyDescription" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">تعيين العهدة</button>
+                </form>
+            </section>
+
+            <!-- Custody Transactions Table -->
+            <section class="data-section">
                 <div class="section-header">
                     <h3>سجل العهدات</h3>
-                    <span id="custodyBalanceDisplay"></span> <!-- Engineer's current custody balance -->
                 </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>التاريخ</th>
-                                <th data-sort="engineer">المهندس</th>
+                                <th>المهندس المستلم</th>
                                 <th>المبلغ (جنيه)</th>
                                 <th>الوصف</th>
+                                <th>المشروع</th> <!-- NEW: Added Project Column -->
                                 <th>تم بواسطة</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="custodyTransactionsTableBody">
-                            <tr><td colspan="6">لا توجد عهدات حتى الآن.</td></tr>
+                            <!-- Transactions will be loaded here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
