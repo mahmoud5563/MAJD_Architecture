@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>الرئيسية</h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay">الآدمن</span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="dashboard-cards">
+                <div class="card">
+                    <i class="fas fa-users icon-large"></i>
+                    <p>عدد العملاء</p>
+                    <span class="count" id="clientsCount">0</span>
+                </div>
+                <div class="card">
+                    <i class="fas fa-folder-open icon-large"></i>
+                    <p>عدد المشاريع الكلي</p>
+                    <span class="count" id="totalProjectsCount">0</span>
+                </div>
+                <div class="card">
+                    <i class="fas fa-spinner icon-large"></i>
+                    <p>المشاريع الجارية</p>
+                    <span class="count" id="ongoingProjectsCount">0</span>
+                </div>
+                <div class="card">
+                    <i class="fas fa-check-circle icon-large"></i>
+                    <p>المشاريع المنتهية</p>
+                    <span class="count" id="completedProjectsCount">0</span>
+                </div>
+            </section>
+
+            
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

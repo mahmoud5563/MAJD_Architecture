@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li class="sidebar-item-dashboard"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li class="sidebar-item-add-project"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <!-- المشاريع: مرئية للجميع (Admin, Account Manager, Engineer) -->
+                    <li class="sidebar-item-projects"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li class="sidebar-item-clients"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li class="sidebar-item-contractors"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <!-- المستخدمون: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li class="sidebar-item-users"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <!-- الإعدادات: مرئية للجميع (Admin, Account Manager, Engineer) -->
+                    <li class="sidebar-item-settings"><a href="settings.html" class="active"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <!-- تسجيل الخروج: مرئي للجميع -->
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>الإعدادات</h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay">الآدمن</span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="settings-section">
+                <div class="card">
+                    <h3>إدارة تصنيفات المصروفات</h3>
+                    <!-- تمت إزالة data-access-role="admin,account_manager" هنا للسماح للمهندس بإظهار زر الإضافة -->
+                    <div class="add-category-form"> 
+                        <div class="form-group">
+                            <label for="categoryNameInput">اسم التصنيف الجديد</label>
+                            <input type="text" id="categoryNameInput" placeholder="أمثلة: مواد بناء، أجور عمال، نقل...">
+                        </div>
+                        <button class="btn btn-primary" id="addCategoryBtn"><i class="fas fa-plus"></i> إضافة تصنيف</button>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 20px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم التصنيف</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <!-- سيتم تحميل التصنيفات هنا بواسطة JavaScript -->
+                                <tr><td colspan="2">جاري تحميل التصنيفات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>تعديل التصنيف</h3>
+            <form id="editCategoryForm">
+                <input type="hidden" id="editCategoryId">
+                <div class="form-group">
+                    <label for="editCategoryName">اسم التصنيف</label>
+                    <input type="text" id="editCategoryName" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="saveEditedCategoryBtn">حفظ التعديل</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

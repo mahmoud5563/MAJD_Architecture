@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خزينة العهد - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html" class="active"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>خزينة العهد</h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay">الآدمن</span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="form-section admin-manager-only">
+                <div class="form-card">
+                    <h3>تعيين عهدة لمهندس</h3>
+                    <form id="assignCustodyForm">
+                        <div class="form-group">
+                            <label for="engineerSelect">المهندس</label>
+                            <select id="engineerSelect" required>
+                                <option value="">اختر مهندس</option>
+                                <!-- Engineers will be loaded here by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="custodyAmount">المبلغ (جنيه)</label>
+                            <input type="number" id="custodyAmount" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="custodyDescription">الوصف</label>
+                            <textarea id="custodyDescription" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">تعيين عهدة</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="data-section" style="margin-top: 30px;">
+                <div class="section-header">
+                    <h3>سجل العهدات</h3>
+                    <span id="custodyBalanceDisplay"></span> <!-- Engineer's current custody balance -->
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th data-sort="engineer">المهندس</th>
+                                <th>المبلغ (جنيه)</th>
+                                <th>الوصف</th>
+                                <th>تم بواسطة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="custodyTransactionsTableBody">
+                            <tr><td colspan="6">لا توجد عهدات حتى الآن.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/custody-treasury.js"></script>
+</body>
+</html>

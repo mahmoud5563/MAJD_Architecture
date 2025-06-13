@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المشروع - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/project-details.css"> <!-- للتنسيق الخاص بتفاصيل المشروع -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="sidebar-item-dashboard"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li class="sidebar-item-add-project"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li class="sidebar-item-projects"><a href="projects.html" class="active"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li class="sidebar-item-clients"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li class="sidebar-item-contractors"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li class="sidebar-item-users"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li class="sidebar-item-settings"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>تفاصيل المشروع: <span id="projectNameDisplayInHeader"></span></h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay"></span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="project-details-section">
+                <div class="details-summary">
+                    <div class="summary-card">
+                        <h3>بيانات المشروع</h3>
+                        <p><strong>اسم المشروع:</strong> <span id="projectNameDetails"></span></p>
+                        <p><strong>العميل:</strong> <span id="projectClientDetails"></span></p>
+                        <p><strong>المهندس المسؤول:</strong> <span id="projectEngineerDetails"></span></p>
+                        <p><strong>العنوان:</strong> <span id="projectAddressDetails"></span></p>
+                        <p><strong>الوصف:</strong> <span id="projectDescriptionDetails"></span></p>
+                        <p><strong>تاريخ البدء:</strong> <span id="projectStartDateDetails"></span></p>
+                        <p><strong>تاريخ الانتهاء المتوقع:</strong> <span id="projectEndDateDetails"></span></p>
+                        <p><strong>الحالة:</strong> <span id="projectStatusDetails" class="status-badge"></span></p>
+                        <p><strong>ملاحظات:</strong> <span id="projectNotesDetails"></span></p>
+                        
+                        <div class="project-actions">
+                            <!-- زر تعديل المشروع: متاح للآدمن، مدير الحسابات، والمهندس -->
+                            <button class="btn btn-secondary edit-project-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-edit"></i> تعديل المشروع</button>
+                            <!-- زر تغيير الحالة: متاح للآدمن ومدير الحسابات فقط -->
+                            <button class="btn btn-primary change-status-btn" data-access-role="admin,account_manager"><i class="fas fa-sync-alt"></i> تغيير الحالة</button>
+                        </div>
+                    </div>
+
+                    <div class="summary-card financials-summary">
+                        <h3>ملخص مالي <button class="btn btn-primary btn-sm" id="exportExcelBtn" data-access-role="admin,account_manager"><i class="fas fa-file-excel"></i> تصدير Excel</button></h3>
+                        <p><strong>إجمالي الإيرادات:</strong> <span id="totalIncomes">0 EGP</span></p>
+                        <p><strong>إجمالي المصروفات:</strong> <span id="totalExpenses">0 EGP</span></p>
+                        <p><strong>صافي الربح/الخسارة:</strong> <span id="netProfitLoss">0 EGP</span></p>
+                    </div>
+                </div>
+
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h3>المصروفات</h3>
+                        <!-- زر إضافة مصروف: متاح للآدمن، مدير الحسابات، والمهندس -->
+                        <button class="btn btn-primary add-transaction-btn" data-type="expense" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة مصروف</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ (جنيه)</th>
+                                    <th>الوصف</th>
+                                    <th>المقاول</th>
+                                    <th>التصنيف</th>
+                                    <th>المرفقات</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTableBody">
+                                <!-- سيتم تحميل المصروفات هنا بواسطة JavaScript -->
+                                <tr><td colspan="7">جاري تحميل المصروفات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="section-header" style="margin-top: 30px;">
+                        <h3>الإيرادات</h3>
+                        <!-- زر إضافة إيراد: متاح للآدمن، مدير الحسابات، والمهندس -->
+                        <button class="btn btn-primary add-transaction-btn" data-type="income" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة إيراد</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ (جنيه)</th>
+                                    <th>الوصف</th>
+                                    <th>طريقة الدفع</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="incomesTableBody">
+                                <!-- سيتم تحميل الإيرادات هنا بواسطة JavaScript -->
+                                <tr><td colspan="5">جاري تحميل الإيرادات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals for adding/editing transactions (reused from projects.html for consistency) -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modalTitle">إضافة مصروف/إيراد للمشروع: <span id="currentProjectName"></span></h3>
+            
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="expense" id="expenseFormTab">إضافة مصروف</button>
+                <button class="tab-button" data-tab="income" id="incomeFormTab">إضافة إيراد</button>
+            </div>
+
+            <div id="expenseForm" class="tab-pane active">
+                <form id="addExpenseForm">
+                    <input type="hidden" id="expenseId">
+                    <div class="form-group">
+                        <label for="expenseAmount">المبلغ</label>
+                        <input type="number" id="expenseAmount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDescription">الوصف</label>
+                        <textarea id="expenseDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDate">التاريخ</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAttachment">المرفقات (صورة)</label>
+                        <input type="file" id="expenseAttachment" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseVendor">البائع (المقاول)</label>
+                        <select id="expenseVendor">
+                            <option value="">اختر مقاول</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory">التصنيف (البند)</label>
+                        <select id="expenseCategory">
+                            <option value="">اختر تصنيف</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="saveExpenseBtn">حفظ المصروف</button>
+                </form>
+            </div>
+
+            <div id="incomeForm" class="tab-pane">
+                <form id="addIncomeForm">
+                    <input type="hidden" id="incomeId">
+                    <div class="form-group">
+                        <label for="incomeAmount">المبلغ</label>
+                        <input type="number" id="incomeAmount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeDescription">الوصف</label>
+                        <textarea id="incomeDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeDate">التاريخ</label>
+                        <input type="date" id="incomeDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomePaymentMethod">طريقة الدفع</label>
+                        <select id="incomePaymentMethod">
+                            <option value="cash">كاش</option>
+                            <option value="bank_transfer">تحويل بنكي</option>
+                            <option value="cheque">شيك</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="saveIncomeBtn">حفظ الإيراد</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Change Status (reused from projects.html for consistency) -->
+    <div id="statusChangeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeStatusChangeModalBtn">&times;</span>
+            <h3>تغيير حالة المشروع: <span id="projectNameToChangeStatus"></span></h3>
+            <form id="changeStatusForm">
+                <input type="hidden" id="statusChangeProjectId">
+                <div class="form-group">
+                    <label for="newProjectStatus">الحالة الجديدة</label>
+                    <select id="newProjectStatus" required>
+                        <option value="pending">معلقة</option>
+                        <option value="ongoing">جارية</option>
+                        <option value="completed">منتهية</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" id="saveNewStatusBtn">حفظ الحالة الجديدة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Modal for attachment viewing -->
+    <div id="imageModal" class="modal image-viewer-modal">
+        <span class="close-button image-close-button">&times;</span>
+        <img class="modal-content image-content" id="displayedImage">
+        <div id="caption"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/project-details.js"></script> <!-- هذا هو ملف JavaScript الخاص بهذه الصفحة -->
+</body>
+</html>

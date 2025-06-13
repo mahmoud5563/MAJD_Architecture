@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <style>
+        /* Specific styles for the login page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--primary-color); /* اللون الأخضر الداكن للخلفية */
+            flex-direction: column;
+            gap: 20px; /* Space between logo and login card */
+        }
+
+        .login-container {
+            background-color: var(--white-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 90%; /* Responsive width */
+            max-width: 450px; /* Max width for larger screens */
+            animation: fadeIn 0.8s ease-out; /* Add fade-in animation */
+        }
+
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .login-container h2 {
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .login-container .form-group {
+            margin-bottom: 20px; /* Space between input fields */
+        }
+
+        .login-container .btn-primary {
+            width: 100%; /* Make button full width */
+            padding: 15px; /* Larger padding for button */
+            font-size: 1.1rem;
+            margin-top: 20px; /* Space above button */
+        }
+
+        .forgot-password {
+            display: block;
+            margin-top: 15px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-dark);
+        }
+
+        /* Adjustments for the specific login form within the login-container */
+        .login-container .form-group input {
+            text-align: right; /* Ensure input text is RTL */
+            direction: rtl;
+        }
+
+        /* Remove any navbar/sidebar related elements from login page */
+        .navbar, .sidebar {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="app-container"> This container is removed from login page -->
+        <div class="login-container">
+            <img src="assets/images/majd-logo.png" alt="MAJD Logo" class="login-logo">
+            <h2>تسجيل الدخول</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
+            </form>
+        </div>
+    <!-- </div> -->
+
+    <div id="toast-container"></div> <!-- Ensure toast container is present -->
+
+    <script src="js/main.js"></script> <!-- Keep main.js for toast and general utils -->
+    <script src="js/auth.js"></script>
+</body>
+</html>

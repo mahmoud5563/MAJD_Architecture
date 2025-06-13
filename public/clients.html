@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العملاء - MAJD Architecture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/forms.css"> <link rel="stylesheet" href="css/clients.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/majd-logo-white.png" alt="MAJD Logo" class="sidebar-logo">
+                <h3>MAJD Architecture</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li><a href="clients.html" class="active"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h2>العملاء</h2>
+                </div>
+                <div class="user-info">
+                    <span>مرحباً، <span id="usernameDisplay">الآدمن</span></span>
+                    <div class="profile-dropdown">
+                        <img src="assets/images/profile-placeholder.png" alt="Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <a href="#">ملفي الشخصي</a>
+                            <a href="#" id="logoutBtnDropdown">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="clients-section">
+                <div class="section-header">
+                    <h3>قائمة العملاء</h3>
+                    <button class="btn btn-primary" id="addClientBtn"><i class="fas fa-plus"></i> إضافة عميل جديد</button>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="text" id="clientSearch" placeholder="ابحث باسم العميل، البريد الإلكتروني أو الهاتف..." class="search-input">
+                    <button class="btn btn-secondary" id="applyClientFiltersBtn"><i class="fas fa-filter"></i> تطبيق الفلاتر</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="name">اسم العميل <i class="fas fa-sort"></i></th>
+                                <th data-sort="email">البريد الإلكتروني</th>
+                                <th data-sort="phone">الهاتف</th>
+                                <th data-sort="company">الشركة (اختياري)</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody">
+                            </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="clientsPagination">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="clientModalTitle">إضافة عميل جديد</h3>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-group">
+                    <label for="clientName">اسم العميل</label>
+                    <input type="text" id="clientName" name="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">البريد الإلكتروني</label>
+                    <input type="email" id="clientEmail" name="clientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPhone">الهاتف</label>
+                    <input type="text" id="clientPhone" name="clientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientCompany">الشركة (اختياري)</label>
+                    <input type="text" id="clientCompany" name="clientCompany">
+                </div>
+                <div class="form-group">
+                    <label for="clientNotes">ملاحظات</label>
+                    <textarea id="clientNotes" name="clientNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="saveClientBtn">حفظ العميل</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/clients.js"></script> <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script> </body>
+</html>

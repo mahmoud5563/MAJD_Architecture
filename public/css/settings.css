@@ -1,0 +1,36 @@
+.settings-section {
+    padding: 20px;
+    background-color: var(--secondary-color);
+}
+
+.section-card {
+    background-color: var(--white-color);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    border-top: 5px solid var(--primary-color);
+}
+
+.section-card h3 {
+    color: var(--primary-dark);
+    margin-bottom: 25px;
+    font-size: 22px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-manager .add-category-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.category-manager .form-control {
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+/* يمكن إضافة ستايلات خاصة لأي عناصر إعدادات أخرى هنا */

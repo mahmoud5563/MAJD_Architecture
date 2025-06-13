@@ -1,0 +1,107 @@
+/* public/css/sidebar.css */
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-dark);
+    color: var(--white-color);
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    /* transition: width 0.3s ease; -- هذا سيتم تعديله للتحكم في الانزلاق */
+    flex-shrink: 0; /* لمنع الشريط الجانبي من التقلص - احتفظ بها للشاشات الكبيرة */
+    
+    /* NEW: Default state for mobile (hidden off-screen) */
+    position: relative; /* Keep relative for desktop, will be fixed for mobile */
+    transition: right 0.3s ease; /* Smooth transition for sliding in/out (RTL) */
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.sidebar-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid var(--white-color);
+}
+
+.sidebar-header h3 {
+    color: var(--white-color);
+    font-size: 20px;
+    margin: 0;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 5px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--white-color);
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-nav a i {
+    margin-left: 10px; /* Space for RTL icon */
+    font-size: 18px;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: var(--primary-light);
+    color: var(--white-color);
+    border-right: 5px solid var(--white-color);
+}
+
+/* لزر إخفاء/إظهار السايد بار (مكانه في Navbar) */
+.toggle-sidebar-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 15px; /* يبقى مكانه في الـ Navbar */
+    transition: transform 0.3s ease;
+}
+
+/* NEW: Responsive Adjustments for Sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px; /* Keep consistent width when open on mobile */
+        position: fixed; /* Make it fixed to overlay content */
+        height: 100vh; /* Full height */
+        top: 0;
+        right: -250px; /* Hide sidebar off-screen to the right (RTL) */
+        box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2); /* Shadow on the left edge when open */
+        z-index: 1000; /* Ensure it's on top of other content */
+        /* transition property for 'right' is already defined above */
+    }
+
+    /* Class added by JavaScript to open the sidebar */
+    .app-container.sidebar-open .sidebar {
+        right: 0; /* Slide sidebar into view */
+    }
+
+    /* Adjust main content when sidebar is open to create overlay effect */
+    /* This might be better handled in style.css or main.js with an overlay */
+    /* For now, focus on sidebar itself */
+}

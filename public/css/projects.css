@@ -1,0 +1,42 @@
+.projects-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    background-color: var(--white-color);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.projects-section .section-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 24px;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    background-color: var(--white-color);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    align-items: center;
+    flex-wrap: wrap; /* للسماح بالعناصر بالنزول لسطر جديد على الشاشات الصغيرة */
+}
+
+.filter-bar .search-input {
+    flex-grow: 1; /* للسماح بحقل البحث بأخذ مساحة أكبر */
+    min-width: 200px;
+}
+
+.filter-bar .filter-select {
+    min-width: 150px;
+}
+
+/* Adjust button spacing within filter bar if needed */
+.filter-bar .btn {
+    white-space: nowrap; /* لمنع كسر نص الزر */
+}
