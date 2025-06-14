@@ -30,7 +30,7 @@
                     <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
                     <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
                     <li data-access-role="admin,account_manager"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                                         <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                                             <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
                     <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
                     <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
                     <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
@@ -77,6 +77,8 @@
                             <button class="btn btn-secondary edit-project-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-edit"></i> تعديل المشروع</button>
                             <!-- زر تغيير الحالة: متاح للآدمن ومدير الحسابات فقط -->
                             <button class="btn btn-primary change-status-btn" data-access-role="admin,account_manager"><i class="fas fa-sync-alt"></i> تغيير الحالة</button>
+                            <!-- NEW: زر إضافة معاملة موحد -->
+                            <button class="btn btn-success add-transaction-unified-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة معاملة</button>
                         </div>
                     </div>
 
@@ -91,8 +93,7 @@
                 <div class="transactions-section">
                     <div class="section-header">
                         <h3>المصروفات</h3>
-                        <!-- زر إضافة مصروف: متاح للآدمن، مدير الحسابات، والمهندس -->
-                        <button class="btn btn-primary add-transaction-btn" data-type="expense" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة مصروف</button>
+                        <!-- زر إضافة مصروف منفصل تم حذفه -->
                     </div>
                     <div class="table-container">
                         <table class="data-table">
@@ -116,8 +117,7 @@
 
                     <div class="section-header" style="margin-top: 30px;">
                         <h3>الإيرادات</h3>
-                        <!-- زر إضافة إيراد: متاح للآدمن، مدير الحسابات، والمهندس -->
-                        <button class="btn btn-primary add-transaction-btn" data-type="income" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة إيراد</button>
+                        <!-- زر إضافة إيراد منفصل تم حذفه -->
                     </div>
                     <div class="table-container">
                         <table class="data-table">
@@ -181,6 +181,13 @@
                         <label for="expenseCategory">التصنيف (البند)</label>
                         <select id="expenseCategory">
                             <option value="">اختر تصنيف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseTreasurySelect">الخزينة</label>
+                        <select id="expenseTreasurySelect" required>
+                            <option value="">اختر خزينة</option>
+                            <!-- Treasuries will be loaded here by JavaScript -->
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary" id="saveExpenseBtn">حفظ المصروف</button>

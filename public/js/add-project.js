@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const clients = await response.json();
-            clientSelect.innerHTML = '<option value="">اختر عميل (اختياري)</option>'; 
+            clientSelect.innerHTML = '<option value="">اختر عميل </option>'; 
             clients.forEach(client => {
                 const option = document.createElement('option');
                 option.value = client._id;
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const engineers = await response.json();
-            engineerSelect.innerHTML = '<option value="">اختر مهندس (اختياري)</option>'; 
+            engineerSelect.innerHTML = '<option value="">اختر مهندس</option>'; 
             engineers.forEach(engineer => {
                 const option = document.createElement('option');
                 option.value = engineer._id;

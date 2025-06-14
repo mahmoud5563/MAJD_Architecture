@@ -87,8 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let actionsHtml = '';
 
-            // زر عرض التفاصيل (View Details - if you have a separate details page)
-            actionsHtml += `<button class="btn-action view-contractor" data-id="${contractor._id}"><i class="fas fa-eye"></i> عرض</button>`;
 
             // زر تعديل: متاح للآدمن ومدير الحسابات
             if (currentUserRole === 'admin' || currentUserRole === 'account_manager') {
