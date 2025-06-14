@@ -29,7 +29,7 @@
                     <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
                     <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
                     <li data-access-role="admin,account_manager"><a href="contractors.html" class="active"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                                        <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                                             <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
                     <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
                     <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
                     <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
@@ -64,6 +64,10 @@
             </header>
 
             <section class="contractor-payments-section project-details-section">
+                <!-- Message and Loader containers for contractor details section. Assumes styles for these classes exist in your CSS files. -->
+                <div id="contractor-details-message" class="message-container" style="display: none;"></div>
+                <div id="contractor-details-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+
                 <div class="details-summary">
                     <div class="summary-card">
                         <h3>بيانات المقاول</h3>
@@ -80,8 +84,46 @@
 
                     <div class="summary-card financials-summary">
                         <h3>ملخص الدفعات المالية</h3>
-                        <p><strong>إجمالي المصروفات للمقاول:</strong> <span id="totalContractorExpenses">0 EGP</span></p>
-                        <!-- يمكن إضافة المزيد من الملخصات هنا لاحقاً مثل إجمالي الإيرادات إذا كان المقاول يقدم إيرادات -->
+                        <!-- Message and Loader containers for financial summary section. Assumes styles for these classes exist in your CSS files. -->
+                        <div id="financial-summary-message" class="message-container" style="display: none;"></div>
+                        <div id="financial-summary-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+                        
+                        <!-- هذا القسم سيعرض تفاصيل المبلغ المتفق عليه والمدفوع والمتبقي -->
+                        <div id="financialSummaryContent">
+                            <p><strong>إجمالي المبلغ المتفق عليه:</strong> <span id="totalAgreedAmount">0 EGP</span></p>
+                            <p><strong>إجمالي المبلغ المدفوع:</strong> <span id="totalPaidAmount">0 EGP</span></p>
+                            <p><strong>المبلغ المتبقي:</strong> <span id="remainingAmount">0 EGP</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قسم جديد: الاتفاقات (المستخلصات) -->
+                <div class="agreements-section transactions-section">
+                    <div class="section-header">
+                        <h3>الاتفاقات (المستخلصات)</h3>
+                        <!-- زر إضافة اتفاق جديد: متاح للآدمن، مدير الحسابات، والمهندس -->
+                        <button class="btn btn-primary add-agreement-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة اتفاق جديد</button>
+                    </div>
+                    <!-- Message and Loader containers for agreements section. Assumes styles for these classes exist in your CSS files. -->
+                    <div id="agreements-message" class="message-container" style="display: none;"></div>
+                    <div id="agreements-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ (جنيه)</th>
+                                    <th>الوصف</th>
+                                    <th>المرفقات</th>
+                                    <th>المشروع</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contractorAgreementsTableBody">
+                                <!-- سيتم تحميل الاتفاقات هنا بواسطة JavaScript -->
+                                <tr><td colspan="6">جاري تحميل الاتفاقات...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -91,6 +133,9 @@
                         <!-- زر إضافة مصروف: متاح للآدمن، مدير الحسابات، والمهندس -->
                         <button class="btn btn-primary add-expense-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة مصروف للمقاول</button>
                     </div>
+                    <!-- Message and Loader containers for expenses section. Assumes styles for these classes exist in your CSS files. -->
+                    <div id="expenses-message" class="message-container" style="display: none;"></div>
+                    <div id="expenses-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -100,13 +145,14 @@
                                     <th>الوصف</th>
                                     <th>المشروع</th>
                                     <th>التصنيف</th>
+                                    <th>الخزينة</th> <!-- NEW: Added Treasury Column -->
                                     <th>المرفقات</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="contractorExpensesTableBody">
                                 <!-- سيتم تحميل المصروفات هنا بواسطة JavaScript -->
-                                <tr><td colspan="7">جاري تحميل المصروفات...</td></tr>
+                                <tr><td colspan="8">جاري تحميل المصروفات...</td></tr> <!-- Updated colspan -->
                             </tbody>
                         </table>
                     </div>
@@ -146,17 +192,64 @@
                     <input type="date" id="expenseDate" required>
                 </div>
                 <div class="form-group">
-                    <label for="expenseAttachment">المرفقات (صورة)</label>
-                    <input type="file" id="expenseAttachment" accept="image/*">
-                </div>
-                <div class="form-group">
                     <label for="expenseCategory">التصنيف (البند)</label>
                     <select id="expenseCategory" required>
                         <option value="">اختر تصنيف</option>
                         <!-- Categories will be loaded here by JavaScript -->
                     </select>
                 </div>
+                <!-- NEW: Treasury Selection Field -->
+                <div class="form-group">
+                    <label for="expenseTreasurySelect">الخزينة</label>
+                    <select id="expenseTreasurySelect" required>
+                        <option value="">اختر خزينة</option>
+                        <!-- Treasuries will be loaded here by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expenseAttachment">المرفقات (صورة)</label>
+                    <input type="file" id="expenseAttachment" accept="image/*">
+                </div>
                 <button type="submit" class="btn btn-primary" id="saveExpenseBtn">حفظ المصروف</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing Agreements -->
+    <div id="agreementModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="agreementModalTitle">إضافة اتفاق جديد للمقاول: <span id="currentContractorNameAgreementModal"></span></h3>
+            
+            <form id="agreementForm">
+                <input type="hidden" id="agreementId">
+                <input type="hidden" id="modalAgreementContractorId"> <!-- Hidden field for contractor ID -->
+                
+                <div class="form-group">
+                    <label for="agreementProjectSelect">المشروع</label>
+                    <select id="agreementProjectSelect" required>
+                        <option value="">اختر مشروع</option>
+                        <!-- Projects will be loaded here by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="agreementAmount">المبلغ المتفق عليه</label>
+                    <input type="number" id="agreementAmount" required>
+                </div>
+                <div class="form-group">
+                    <label for="agreementDescription">الوصف</label>
+                    <textarea id="agreementDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="agreementDate">تاريخ الاتفاق</label>
+                    <input type="date" id="agreementDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="agreementAttachment">المرفقات (صورة)</label>
+                    <input type="file" id="agreementAttachment" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" id="saveAgreementBtn">حفظ الاتفاق</button>
             </form>
         </div>
     </div>

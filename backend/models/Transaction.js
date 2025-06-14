@@ -35,6 +35,11 @@ const transactionSchema = mongoose.Schema(
             ref: 'User',
             required: false,
         },
+        relatedExpense: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Expense',
+            required: false // يمكن أن تكون المعاملة غير مرتبطة بمصروف محدد
+        },
         relatedProject: { // للمصروفات/الإيرادات الخاصة بالمشاريع
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Project',

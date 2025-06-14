@@ -8,6 +8,11 @@ const expenseSchema = mongoose.Schema(
             required: true,
             ref: 'Project',
         },
+        treasuryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Treasury',
+            required: true // اجعله مطلوبًا
+        },
         amount: {
             type: Number,
             required: true,
