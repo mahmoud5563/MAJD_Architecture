@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="css/project-details.css"> <!-- يمكن إعادة استخدام بعض تنسيقات تفاصيل المشروع/العميل -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="app-container">
         <aside class="sidebar">
@@ -20,25 +22,35 @@
             <nav class="sidebar-nav">
                 <ul>
                     <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i
+                                class="fas fa-home"></i>الرئيسية</a></li>
                     <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات والمهندس -->
-                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i
+                                class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
                     <!-- المشاريع: مرئية للجميع -->
-                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i
+                                class="fas fa-tasks"></i>المشاريع</a></li>
                     <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li data-access-role="admin,account_manager"><a href="clients.html"><i
+                                class="fas fa-users"></i>العملاء</a></li>
                     <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li data-access-role="admin,account_manager"><a href="contractors.html" class="active"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                                             <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
-                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <li data-access-role="admin,account_manager"><a href="contractors.html" class="active"><i
+                                class="fas fa-hard-hat"></i>المقاولون</a></li>
+                    <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i
+                                class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
                     <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
-                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i
+                                class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
                     <!-- عهد المهندسين: مرئية للآدمن ومدير الحسابات والمهندس -->
-                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html"><i
+                                class="fas fa-wallet"></i> عهد المهندسين</a></li>
                     <!-- المستخدمون: مرئية للآدمن فقط -->
-                    <li data-access-role="admin"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <li data-access-role="admin"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a>
+                    </li>
                     <!-- الإعدادات: مرئية للجميع -->
-                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i
+                                class="fas fa-cog"></i>الإعدادات</a></li>
                     <!-- تسجيل الخروج: مرئي للجميع -->
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
                 </ul>
@@ -66,7 +78,9 @@
             <section class="contractor-payments-section project-details-section">
                 <!-- Message and Loader containers for contractor details section. Assumes styles for these classes exist in your CSS files. -->
                 <div id="contractor-details-message" class="message-container" style="display: none;"></div>
-                <div id="contractor-details-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+                <div id="contractor-details-loader" class="loader-container" style="display: none;">
+                    <div class="loader"></div>
+                </div>
 
                 <div class="details-summary">
                     <div class="summary-card">
@@ -76,25 +90,29 @@
                         <p><strong>الهاتف:</strong> <span id="contractorPhoneDetails"></span></p>
                         <p><strong>التخصص:</strong> <span id="contractorSpecialtyDetails"></span></p>
                         <p><strong>ملاحظات:</strong> <span id="contractorNotesDetails"></span></p>
-                        <div class="contractor-actions project-actions">
-                            <button class="btn btn-secondary edit-contractor-btn" data-id="" data-access-role="admin,account_manager"><i class="fas fa-edit"></i> تعديل المقاول</button>
-                            <button class="btn btn-danger delete-contractor-btn" data-id="" data-access-role="admin,account_manager"><i class="fas fa-trash-alt"></i> حذف المقاول</button>
-                        </div>
+                        
                     </div>
 
                     <div class="summary-card financials-summary">
-                        <h3>ملخص الدفعات المالية</h3>
-                        <!-- Message and Loader containers for financial summary section. Assumes styles for these classes exist in your CSS files. -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <h3>ملخص الدفعات المالية</h3>
+                            <select id="projectFilterSelect">
+                                <option selected disabled>اختر مشروع</option>
+                            </select>
+                        </div>
+
                         <div id="financial-summary-message" class="message-container" style="display: none;"></div>
-                        <div id="financial-summary-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
-                        
-                        <!-- هذا القسم سيعرض تفاصيل المبلغ المتفق عليه والمدفوع والمتبقي -->
+                        <div id="financial-summary-loader" class="loader-container" style="display: none;">
+                            <div class="loader"></div>
+                        </div>
+
                         <div id="financialSummaryContent">
                             <p><strong>إجمالي المبلغ المتفق عليه:</strong> <span id="totalAgreedAmount">0 EGP</span></p>
                             <p><strong>إجمالي المبلغ المدفوع:</strong> <span id="totalPaidAmount">0 EGP</span></p>
                             <p><strong>المبلغ المتبقي:</strong> <span id="remainingAmount">0 EGP</span></p>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- قسم جديد: الاتفاقات (المستخلصات) -->
@@ -102,11 +120,15 @@
                     <div class="section-header">
                         <h3>الاتفاقات (المستخلصات)</h3>
                         <!-- زر إضافة اتفاق جديد: متاح للآدمن، مدير الحسابات، والمهندس -->
-                        <button class="btn btn-primary add-agreement-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة اتفاق جديد</button>
+                        <button class="btn btn-primary add-agreement-btn"
+                            data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة اتفاق
+                            جديد</button>
                     </div>
                     <!-- Message and Loader containers for agreements section. Assumes styles for these classes exist in your CSS files. -->
                     <div id="agreements-message" class="message-container" style="display: none;"></div>
-                    <div id="agreements-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+                    <div id="agreements-loader" class="loader-container" style="display: none;">
+                        <div class="loader"></div>
+                    </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -121,7 +143,9 @@
                             </thead>
                             <tbody id="contractorAgreementsTableBody">
                                 <!-- سيتم تحميل الاتفاقات هنا بواسطة JavaScript -->
-                                <tr><td colspan="6">جاري تحميل الاتفاقات...</td></tr>
+                                <tr>
+                                    <td colspan="6">جاري تحميل الاتفاقات...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -131,11 +155,15 @@
                     <div class="section-header">
                         <h3>المصروفات المدفوعة لهذا المقاول</h3>
                         <!-- زر إضافة مصروف: متاح للآدمن، مدير الحسابات، والمهندس -->
-                        <button class="btn btn-primary add-expense-btn" data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة مصروف للمقاول</button>
+                        <button class="btn btn-primary add-expense-btn"
+                            data-access-role="admin,account_manager,engineer"><i class="fas fa-plus"></i> إضافة مصروف
+                            للمقاول</button>
                     </div>
                     <!-- Message and Loader containers for expenses section. Assumes styles for these classes exist in your CSS files. -->
                     <div id="expenses-message" class="message-container" style="display: none;"></div>
-                    <div id="expenses-loader" class="loader-container" style="display: none;"><div class="loader"></div></div>
+                    <div id="expenses-loader" class="loader-container" style="display: none;">
+                        <div class="loader"></div>
+                    </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -152,7 +180,9 @@
                             </thead>
                             <tbody id="contractorExpensesTableBody">
                                 <!-- سيتم تحميل المصروفات هنا بواسطة JavaScript -->
-                                <tr><td colspan="8">جاري تحميل المصروفات...</td></tr> <!-- Updated colspan -->
+                                <tr>
+                                    <td colspan="8">جاري تحميل المصروفات...</td>
+                                </tr> <!-- Updated colspan -->
                             </tbody>
                         </table>
                     </div>
@@ -166,11 +196,11 @@
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h3 id="expenseModalTitle">إضافة مصروف للمقاول: <span id="currentContractorName"></span></h3>
-            
+
             <form id="expenseForm">
                 <input type="hidden" id="expenseId">
                 <input type="hidden" id="modalContractorId"> <!-- Hidden field for contractor ID -->
-                
+
                 <div class="form-group">
                     <label for="expenseProjectSelect">المشروع</label>
                     <select id="expenseProjectSelect" required>
@@ -219,12 +249,13 @@
     <div id="agreementModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h3 id="agreementModalTitle">إضافة اتفاق جديد للمقاول: <span id="currentContractorNameAgreementModal"></span></h3>
-            
+            <h3 id="agreementModalTitle">إضافة اتفاق جديد للمقاول: <span
+                    id="currentContractorNameAgreementModal"></span></h3>
+
             <form id="agreementForm">
                 <input type="hidden" id="agreementId">
                 <input type="hidden" id="modalAgreementContractorId"> <!-- Hidden field for contractor ID -->
-                
+
                 <div class="form-group">
                     <label for="agreementProjectSelect">المشروع</label>
                     <select id="agreementProjectSelect" required>
@@ -245,10 +276,7 @@
                     <label for="agreementDate">تاريخ الاتفاق</label>
                     <input type="date" id="agreementDate" required>
                 </div>
-                <div class="form-group">
-                    <label for="agreementAttachment">المرفقات (صورة)</label>
-                    <input type="file" id="agreementAttachment" accept="image/*">
-                </div>
+                
                 <button type="submit" class="btn btn-primary" id="saveAgreementBtn">حفظ الاتفاق</button>
             </form>
         </div>
@@ -266,4 +294,5 @@
     <script src="js/utils.js"></script>
     <script src="js/contractor-payments.js"></script> <!-- هذا هو ملف JavaScript الجديد لهذه الصفحة -->
 </body>
+
 </html>

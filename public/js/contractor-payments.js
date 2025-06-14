@@ -3,12 +3,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const contractorId = urlParams.get('id');
-    const projectId = urlParams.get('projectId'); // Assuming projectId might also be passed if coming from project details
+    // initialProjectId will be used for initial load if present in the URL.
+    let currentFilterProjectId = urlParams.get('projectId'); // Use let to allow changing based on dropdown
 
     // Get user info from localStorage (assuming utils.js or auth.js handles this)
     const authToken = localStorage.getItem('authToken');
     const userRole = localStorage.getItem('userRole');
-    // const userId = localStorage.getItem('userId'); // Not directly used in this snippet but available
 
     // --- DOM Elements ---
     // Header & Contractor Details
@@ -27,16 +27,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalAgreedAmountSpan = document.getElementById('totalAgreedAmount');
     const totalPaidAmountSpan = document.getElementById('totalPaidAmount');
     const remainingAmountSpan = document.getElementById('remainingAmount');
+    const projectFilterSelect = document.getElementById('projectFilterSelect'); // Element for project filter dropdown
 
     // Agreements Section
     const addAgreementBtn = document.querySelector('.add-agreement-btn');
     const contractorAgreementsTableBody = document.getElementById('contractorAgreementsTableBody');
 
-    // Expenses Section (existing)
+    // Expenses Section
     const contractorExpensesTableBody = document.getElementById('contractorExpensesTableBody');
     const addExpenseBtn = document.querySelector('.add-expense-btn');
 
-    // Expense Modal Elements (existing)
+    // Expense Modal Elements
     const expenseModal = document.getElementById('expenseModal');
     const expenseModalTitle = document.getElementById('expenseModalTitle');
     const currentContractorNameModal = document.getElementById('currentContractorName');
@@ -51,9 +52,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const expenseDateInput = document.getElementById('expenseDate');
     const expenseAttachmentInput = document.getElementById('expenseAttachment');
     const expenseCategorySelect = document.getElementById('expenseCategory');
+    const expenseTreasurySelect = document.getElementById('expenseTreasurySelect');
     const saveExpenseBtn = document.getElementById('saveExpenseBtn');
 
-    // Agreement Modal Elements (NEW)
+    // Agreement Modal Elements
     const agreementModal = document.getElementById('agreementModal');
     const agreementModalTitle = document.getElementById('agreementModalTitle');
     const currentContractorNameAgreementModal = document.getElementById('currentContractorNameAgreementModal');
@@ -69,13 +71,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const agreementAttachmentInput = document.getElementById('agreementAttachment');
     const saveAgreementBtn = document.getElementById('saveAgreementBtn');
 
-    // Image Modal Elements (existing)
+    // Image Modal Elements
     const imageModal = document.getElementById('imageModal');
     const displayedImage = document.getElementById('displayedImage');
     const imageCaption = document.getElementById('caption');
     const closeImageModalButton = imageModal ? imageModal.querySelector('.close-button') : null;
 
-    // Loader and Message Containers (matching HTML IDs)
+    // Loader and Message Containers
     const contractorDetailsLoader = document.getElementById('contractor-details-loader');
     const contractorDetailsMessage = document.getElementById('contractor-details-message');
     const financialSummaryLoader = document.getElementById('financial-summary-loader');
@@ -84,21 +86,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const agreementsMessage = document.getElementById('agreements-message');
     const expensesLoader = document.getElementById('expenses-loader');
     const expensesMessage = document.getElementById('expenses-message');
-    
 
 
     // --- Data Storage ---
-    let allAgreements = [];
-    let allContractorExpenses = [];
+    let allAgreements = []; // Stores current filtered agreements
+    let allContractorExpenses = []; // Stores current filtered expenses
+    let allProjects = []; // Stores all projects for filter dropdown
 
-    // --- Base URL for API requests (Make sure this matches your backend URL) ---
-    // يمكنك تعديل هذا الرابط ليناسب بيئة التشغيل الخاصة بك (مثل  https://6943-156-203-135-174.ngrok-free.app)
-    const API_BASE_URL = ' https://6943-156-203-135-174.ngrok-free.app/api'; 
+    // --- Base URL for API requests ---
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api';
 
     // --- Helper Functions (assuming they are in utils.js or defined here if not) ---
-    // If utils.js is not loaded or doesn't have these, define them here:
-    // function showToast(message, type) { /* ... implementation ... */ }
-    // function formatNumber(num) { /* ... implementation ... */ }
+    // Make sure utils.js defines showToast, formatNumber.
+    // If not, add fallback definitions here or ensure utils.js is correctly loaded.
 
     // Generic loader/message functions
     function showLoader(element) {
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Main Data Fetching Function ---
-    async function fetchContractorDetailsAndAllPayments() {
+    async function fetchContractorDetailsAndAllPayments(filterProjectId = null) {
         // Show loaders for all sections
         showLoader(contractorDetailsLoader);
         showLoader(financialSummaryLoader);
@@ -166,10 +166,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const contractor = await contractorResponse.json();
             renderContractorDetails(contractor);
 
-            // 2. Fetch Agreements for this Contractor/Project
-            // If projectId is available, filter by it. Otherwise, get all agreements for the contractor.
-            const agreementsQuery = projectId ? `?contractorId=${contractorId}&projectId=${projectId}` : `?contractorId=${contractorId}`;
-            const agreementsResponse = await fetch(`${API_BASE_URL}/agreements${agreementsQuery}`, {
+            // Determine query parameters for agreements and expenses
+            let agreementsQueryParams = `?contractorId=${contractorId}`;
+            let expensesQueryParams = `?vendorId=${contractorId}`; // Use vendorId for expenses
+
+            if (filterProjectId && filterProjectId !== 'all') {
+                agreementsQueryParams += `&projectId=${filterProjectId}`;
+                expensesQueryParams += `&projectId=${filterProjectId}`;
+            }
+
+            // 2. Fetch Agreements for this Contractor (filtered by filterProjectId if provided)
+            const agreementsResponse = await fetch(`${API_BASE_URL}/agreements${agreementsQueryParams}`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             hideLoader(agreementsLoader);
@@ -177,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allAgreements = await agreementsResponse.json();
                 renderContractorAgreements(allAgreements);
                 if (allAgreements.length === 0) {
-                    showMessage(agreementsMessage, 'info', 'لا توجد اتفاقات مسجلة لهذا المقاول.');
+                    showMessage(agreementsMessage, 'info', 'لا توجد اتفاقات مسجلة لهذا المقاول.' + (filterProjectId && filterProjectId !== 'all' ? ' للمشروع المحدد.' : ''));
                 }
             } else {
                 const errorData = await agreementsResponse.json();
@@ -186,10 +193,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allAgreements = []; // Ensure it's empty if fetch fails
             }
 
-            // 3. Fetch Expenses (Payments) for this Contractor/Project
-            // If projectId is available, filter by it. Otherwise, get all expenses for the contractor.
-            const expensesQuery = projectId ? `?vendorId=${contractorId}&projectId=${projectId}` : `?vendorId=${contractorId}`;
-            const expensesResponse = await fetch(`${API_BASE_URL}/expenses${expensesQuery}`, {
+            // 3. Fetch Expenses (Payments) for this Contractor (filtered by filterProjectId if provided)
+            const expensesResponse = await fetch(`${API_BASE_URL}/expenses${expensesQueryParams}`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             hideLoader(expensesLoader);
@@ -197,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allContractorExpenses = await expensesResponse.json();
                 renderContractorExpenses(allContractorExpenses);
                 if (allContractorExpenses.length === 0) {
-                    showMessage(expensesMessage, 'info', 'لا توجد دفعات مسجلة لهذا المقاول.');
+                    showMessage(expensesMessage, 'info', 'لا توجد دفعات مسجلة لهذا المقاول.' + (filterProjectId && filterProjectId !== 'all' ? ' للمشروع المحدد.' : ''));
                 }
             } else {
                 const errorData = await expensesResponse.json();
@@ -210,6 +215,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateFinancialSummary(allAgreements, allContractorExpenses);
             hideLoader(financialSummaryLoader); // Hide after summary is rendered
 
+            // 5. Populate the project filter dropdown (only once on initial load)
+            if (allProjects.length === 0) { // Only fetch projects if not already loaded
+                await populateProjectFilterDropdown();
+            }
+
         } catch (error) {
             console.error('Error in fetchContractorDetailsAndAllPayments:', error);
             // General error message if specific messages weren't shown
@@ -217,7 +227,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showMessage(contractorDetailsMessage, 'error', 'حدث خطأ في الاتصال بالخادم أثناء جلب بيانات المقاول ودفعاته.');
             }
             if (error.message.includes('401') || error.message.includes('403')) {
-                showToast('انتهت الجلسة أو ليس لديك صلاحية. جارٍ إعادة التوجيه لتسجيل الدخول.', 'error');
+                if (typeof showToast !== 'undefined') {
+                    showToast('انتهت الجلسة أو ليس لديك صلاحية. جارٍ إعادة التوجيه لتسجيل الدخول.', 'error');
+                } else {
+                    // Fallback to alert if showToast is not defined
+                    alert('انتهت الجلسة أو ليس لديك صلاحية. جارٍ إعادة التوجيه لتسجيل الدخول.');
+                }
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('username');
@@ -297,11 +312,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         agreements.forEach(agreement => {
             const row = document.createElement('tr');
-            const projectName = agreement.projectId ? agreement.projectId.name : 'غير محدد';
-            
+            // Find project name from cached allProjects array
+            const projectName = allProjects.find(p => p._id === (agreement.projectId && agreement.projectId._id ? agreement.projectId._id : agreement.projectId))?.name || 'غير محدد';
+
             // Assuming attachment is a URL or path, if it exists
-            const attachmentHtml = agreement.attachment 
-                ? `<button class="btn btn-sm btn-view view-agreement-attachment" data-attachment="${agreement.attachment}"><i class="fas fa-paperclip"></i> عرض</button>` 
+            const attachmentHtml = agreement.attachment
+                ? `<button class="btn btn-sm btn-view view-agreement-attachment" data-attachment="${agreement.attachment}"><i class="fas fa-paperclip"></i> عرض</button>`
                 : 'لا يوجد';
 
             const actionsHtml = `
@@ -309,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button class="btn btn-sm btn-edit edit-agreement-btn" data-id="${agreement._id}" data-access-role="admin,account_manager,engineer"><i class="fas fa-edit"></i> تعديل</button>
                     <button class="btn btn-sm btn-delete delete-agreement-btn" data-id="${agreement._id}" data-access-role="admin,account_manager"><i class="fas fa-trash-alt"></i> حذف</button>
                 </div>
-            `; // Note: Engineer can edit if assigned to project, but delete is usually Admin/Account Manager
+            `;
 
             row.innerHTML = `
                 <td>${new Date(agreement.date).toLocaleDateString('ar-EG')}</td>
@@ -336,13 +352,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         expenses.forEach(expense => {
             const row = document.createElement('tr');
-            const projectName = expense.projectId ? expense.projectId.name : 'غير محدد';
+            // Find project name from cached allProjects array
+            const projectName = allProjects.find(p => p._id === (expense.projectId && expense.projectId._id ? expense.projectId._id : expense.projectId))?.name || 'غير محدد';
             const categoryName = expense.categoryId ? expense.categoryId.name : 'غير محدد';
-            // Assuming 'treasuryId' is populated in the backend as treasury name
-            const treasuryName = expense.treasuryId ? expense.treasuryId.name : 'غير معروف'; 
+            const treasuryName = expense.treasuryId ? expense.treasuryId.name : 'غير معروف';
 
-            const attachmentHtml = expense.attachment 
-                ? `<button class="btn btn-sm btn-view view-expense-attachment" data-attachment="${expense.attachment}"><i class="fas fa-paperclip"></i> عرض</button>` 
+            const attachmentHtml = expense.attachment
+                ? `<button class="btn btn-sm btn-view view-expense-attachment" data-attachment="${expense.attachment}"><i class="fas fa-paperclip"></i> عرض</button>`
                 : 'لا يوجد';
 
             const actionsHtml = `
@@ -358,7 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${expense.description || 'لا يوجد'}</td>
                 <td>${projectName}</td>
                 <td>${categoryName}</td>
-                <td>${treasuryName}</td> <!-- Display treasury name -->
+                <td>${treasuryName}</td>
                 <td>${attachmentHtml}</td>
                 <td>${actionsHtml}</td>
             `;
@@ -380,6 +396,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // --- Project Filter Dropdown Population and Event Listener ---
+    async function populateProjectFilterDropdown() {
+        if (!projectFilterSelect) return;
+
+        try {
+            const projectsResponse = await fetch(`${API_BASE_URL}/projects`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            allProjects = await projectsResponse.json(); // Cache all projects
+
+            projectFilterSelect.innerHTML = '<option value="" disabled>اختر مشروع</option>'; // Default option
+            projectFilterSelect.innerHTML += '<option value="all">كل المشاريع</option>'; // Option to view all
+
+            allProjects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project._id;
+                option.textContent = project.name;
+                projectFilterSelect.appendChild(option);
+            });
+
+            // Set the dropdown to the initialProjectId if it exists
+            if (currentFilterProjectId) {
+                projectFilterSelect.value = currentFilterProjectId;
+            } else {
+                // If no initial project in URL, default to "All Projects"
+                projectFilterSelect.value = 'all';
+            }
+
+        } catch (error) {
+            console.error('Error fetching projects for filter dropdown:', error);
+            if (typeof showToast !== 'undefined') showToast('فشل جلب المشاريع لقائمة الفلتر.', 'error');
+        }
+    }
+
+    // Add event listener for project filter change
+    if (projectFilterSelect) {
+        projectFilterSelect.addEventListener('change', (e) => {
+            currentFilterProjectId = e.target.value === 'all' ? null : e.target.value; // Set to null for 'all' to fetch all payments
+            fetchContractorDetailsAndAllPayments(currentFilterProjectId); // Re-fetch with the selected filter
+        });
+    }
+
     // --- Event Listeners for Agreements ---
     if (addAgreementBtn) {
         addAgreementBtn.addEventListener('click', () => {
@@ -398,12 +456,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.delete-agreement-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const agreementId = e.currentTarget.dataset.id;
-                if (confirm('هل أنت متأكد من حذف هذا الاتفاق؟ هذا سيؤثر على المبلغ المستحق للمقاول.')) {
+                // Using a custom modal for confirmation instead of browser's confirm()
+                showConfirmationModal('هل أنت متأكد من حذف هذا الاتفاق؟ هذا سيؤثر على المبلغ المستحق للمقاول.', async () => {
                     await deleteAgreement(agreementId);
-                }
+                });
             });
         });
-         document.querySelectorAll('.view-agreement-attachment').forEach(link => {
+        document.querySelectorAll('.view-agreement-attachment').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const attachmentUrl = e.currentTarget.dataset.attachment;
@@ -420,21 +479,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                showToast(errorData.message || 'فشل جلب بيانات الاتفاق للتعديل.', 'error');
+                if (typeof showToast !== 'undefined') showToast(errorData.message || 'فشل جلب بيانات الاتفاق للتعديل.', 'error');
                 return;
             }
             const agreement = await response.json();
             openAgreementModal('edit', agreement);
         } catch (error) {
             console.error('Error fetching agreement for edit:', error);
-            showToast('حدث خطأ أثناء جلب بيانات الاتفاق للتعديل.', 'error');
+            if (typeof showToast !== 'undefined') showToast('حدث خطأ أثناء جلب بيانات الاتفاق للتعديل.', 'error');
         }
     }
 
     async function openAgreementModal(mode = 'add', agreement = null) {
         if (!agreementModal) return;
 
-        agreementModal.style.display = 'block'; // Or 'flex' if you use flexbox for modals
+        agreementModal.style.display = 'block';
         agreementForm.reset();
 
         // Populate projects for dropdown
@@ -450,7 +509,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             agreementModalTitle.textContent = `تعديل اتفاق للمقاول: ${contractorNameDisplayInHeader.textContent}`;
             saveAgreementBtn.textContent = 'تحديث الاتفاق';
             agreementIdInput.value = agreement._id;
-            agreementProjectSelect.value = agreement.projectId ? agreement.projectId._id : '';
+            // Set project value after populating options
+            if (agreement.projectId && agreementProjectSelect.querySelector(`option[value="${(agreement.projectId._id || agreement.projectId)}"]`)) {
+                agreementProjectSelect.value = (agreement.projectId._id || agreement.projectId);
+            } else {
+                agreementProjectSelect.value = '';
+            }
             agreementAmountInput.value = agreement.amount;
             agreementDescriptionInput.value = agreement.description || '';
             agreementDateInput.value = agreement.date ? new Date(agreement.date).toISOString().split('T')[0] : '';
@@ -478,10 +542,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchProjectsForAgreementModal() {
         try {
-            const projectsResponse = await fetch(`${API_BASE_URL}/projects`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
-            const projects = await projectsResponse.json();
+            // Use cached projects if available, otherwise fetch
+            const projects = allProjects.length > 0 ? allProjects : await (await fetch(`${API_BASE_URL}/projects`, { headers: { 'Authorization': `Bearer ${authToken}` } })).json();
             agreementProjectSelect.innerHTML = '<option value="">اختر مشروع</option>';
             projects.forEach(project => {
                 const option = document.createElement('option');
@@ -491,7 +553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         } catch (error) {
             console.error('Error fetching projects for agreement modal:', error);
-            showToast('فشل جلب بيانات المشاريع لمودال الاتفاق.', 'error');
+            if (typeof showToast !== 'undefined') showToast('فشل جلب بيانات المشاريع لمودال الاتفاق.', 'error');
         }
     }
 
@@ -499,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (saveAgreementBtn) {
         saveAgreementBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            
+
             const agreementId = agreementIdInput.value;
             const projectIdSelected = agreementProjectSelect.value;
             const amount = parseFloat(agreementAmountInput.value);
@@ -508,11 +570,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const contractorIdForAgreement = modalAgreementContractorIdInput.value;
 
             if (!projectIdSelected || !amount || !date || !contractorIdForAgreement) {
-                showToast('الرجاء ملء جميع الحقول المطلوبة لإضافة/تعديل الاتفاق.', 'error');
+                if (typeof showToast !== 'undefined') showToast('الرجاء ملء جميع الحقول المطلوبة لإضافة/تعديل الاتفاق.', 'error');
                 return;
             }
             if (isNaN(amount) || amount <= 0) {
-                showToast('المبلغ المتفق عليه يجب أن يكون رقماً موجباً.', 'error');
+                if (typeof showToast !== 'undefined') showToast('المبلغ المتفق عليه يجب أن يكون رقماً موجباً.', 'error');
                 return;
             }
 
@@ -548,17 +610,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 if (response.ok) {
-                    showToast(`تم ${agreementId ? 'تعديل' : 'حفظ'} الاتفاق بنجاح!`, 'success');
+                    if (typeof showToast !== 'undefined') showToast(`تم ${agreementId ? 'تعديل' : 'حفظ'} الاتفاق بنجاح!`, 'success');
                     closeAgreementModal();
-                    fetchContractorDetailsAndAllPayments(); // Refresh all data
+                    // Re-fetch all data with the currently active filter
+                    fetchContractorDetailsAndAllPayments(currentFilterProjectId); 
                 } else {
                     const errorData = await response.json();
                     console.error('Failed to save agreement:', response.status, errorData.message);
-                    showToast(errorData.message || `فشل ${agreementId ? 'تعديل' : 'حفظ'} الاتفاق.`, 'error');
+                    if (typeof showToast !== 'undefined') showToast(errorData.message || `فشل ${agreementId ? 'تعديل' : 'حفظ'} الاتفاق.`, 'error');
                 }
             } catch (error) {
                 console.error('Error saving agreement:', error);
-                showToast('حدث خطأ في الاتصال بالخادم أثناء حفظ الاتفاق.', 'error');
+                if (typeof showToast !== 'undefined') showToast('حدث خطأ في الاتصال بالخادم أثناء حفظ الاتفاق.', 'error');
             }
         });
     }
@@ -571,39 +634,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (response.ok) {
-                showToast('تم حذف الاتفاق بنجاح.', 'success');
-                fetchContractorDetailsAndAllPayments(); // Refresh data
+                if (typeof showToast !== 'undefined') showToast('تم حذف الاتفاق بنجاح.', 'success');
+                // Re-fetch all data with the currently active filter
+                fetchContractorDetailsAndAllPayments(currentFilterProjectId);
             } else {
                 const errorData = await response.json();
                 console.error('Failed to delete agreement:', response.status, errorData.message);
-                showToast(errorData.message || 'فشل حذف الاتفاق.', 'error');
+                if (typeof showToast !== 'undefined') showToast(errorData.message || 'فشل حذف الاتفاق.', 'error');
             }
         } catch (error) {
             console.error('Error deleting agreement:', error);
-            showToast('حدث خطأ أثناء حذف الاتفاق.', 'error');
+            if (typeof showToast !== 'undefined') showToast('حدث خطأ أثناء حذف الاتفاق.', 'error');
         }
     }
 
 
     // --- Existing Expense Modal Functions (modified slightly for context) ---
     function addExpenseActionListeners() {
-        document.querySelectorAll('.edit-expense-btn').forEach(button => { // changed class name for clarity
+        document.querySelectorAll('.edit-expense-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const expenseId = e.currentTarget.dataset.id;
                 await openEditExpenseModal(expenseId);
             });
         });
 
-        document.querySelectorAll('.delete-expense-btn').forEach(button => { // changed class name for clarity
+        document.querySelectorAll('.delete-expense-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const expenseId = e.currentTarget.dataset.id;
-                if (confirm('هل أنت متأكد من حذف هذه الدفعة؟')) {
+                // Using a custom modal for confirmation instead of browser's confirm()
+                showConfirmationModal('هل أنت متأكد من حذف هذه الدفعة؟', async () => {
                     await deleteExpense(expenseId);
-                }
+                });
             });
         });
 
-        document.querySelectorAll('.view-expense-attachment').forEach(link => { // changed class name for clarity
+        document.querySelectorAll('.view-expense-attachment').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const attachmentUrl = e.currentTarget.dataset.attachment;
@@ -626,44 +691,56 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                showToast(errorData.message || 'فشل جلب بيانات الدفعة للتعديل.', 'error');
+                if (typeof showToast !== 'undefined') showToast(errorData.message || 'فشل جلب بيانات الدفعة للتعديل.', 'error');
                 return;
             }
             const expense = await response.json();
             openExpenseModal('edit', expense);
         } catch (error) {
             console.error('Error fetching expense for edit:', error);
-            showToast('حدث خطأ أثناء جلب بيانات الدفعة للتعديل.', 'error');
+            if (typeof showToast !== 'undefined') showToast('حدث خطأ أثناء جلب بيانات الدفعة للتعديل.', 'error');
         }
     }
 
     async function openExpenseModal(mode = 'add', expense = null) {
         if (!expenseModal) return;
 
-        expenseModal.style.display = 'block'; // Or 'flex'
+        expenseModal.style.display = 'block';
         expenseForm.reset();
 
         // Populate projects and categories for dropdowns
         await fetchProjectsAndCategoriesForExpenseModal();
-        // TODO: Populate Treasuries dropdown here once backend is ready
-        // await fetchTreasuriesForExpenseModal();
+        await fetchTreasuriesForExpenseModal();
 
         modalContractorIdInput.value = contractorId; // Ensure contractor ID is set
 
         if (mode === 'add') {
-            expenseModalTitle.textContent = `إضافة دفعة للمقاول: ${contractorNameDisplayInHeader.textContent}`; // Changed text
-            saveExpenseBtn.textContent = 'حفظ الدفعة'; // Changed text
+            expenseModalTitle.textContent = `إضافة دفعة للمقاول: ${contractorNameDisplayInHeader.textContent}`;
+            saveExpenseBtn.textContent = 'حفظ الدفعة';
             expenseIdInput.value = '';
         } else { // mode === 'edit'
-            expenseModalTitle.textContent = `تعديل دفعة للمقاول: ${contractorNameDisplayInHeader.textContent}`; // Changed text
-            saveExpenseBtn.textContent = 'تحديث الدفعة'; // Changed text
+            expenseModalTitle.textContent = `تعديل دفعة للمقاول: ${contractorNameDisplayInHeader.textContent}`;
+            saveExpenseBtn.textContent = 'تحديث الدفعة';
             expenseIdInput.value = expense._id;
-            expenseProjectSelect.value = expense.projectId ? expense.projectId._id : '';
+            // Set project value after populating options
+            if (expense.projectId && expenseProjectSelect.querySelector(`option[value="${(expense.projectId._id || expense.projectId)}"]`)) {
+                expenseProjectSelect.value = (expense.projectId._id || expense.projectId);
+            } else {
+                expenseProjectSelect.value = '';
+            }
             expenseAmountInput.value = expense.amount;
             expenseDescriptionInput.value = expense.description || '';
             expenseDateInput.value = expense.date ? new Date(expense.date).toISOString().split('T')[0] : '';
             expenseCategorySelect.value = expense.categoryId ? expense.categoryId._id : '';
-            // TODO: Set selected treasury here when editing
+            // Ensure treasury is selected
+            if (expense.treasuryId && expense.treasuryId._id) {
+                expenseTreasurySelect.value = expense.treasuryId._id;
+            } else if (expense.treasuryId) { // Fallback if treasuryId is just the ID string
+                expenseTreasurySelect.value = expense.treasuryId;
+            } else {
+                expenseTreasurySelect.value = '';
+            }
+            // No handling for expenseAttachmentInput yet for edit (file input cannot be pre-set)
         }
     }
 
@@ -685,14 +762,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Function to fetch projects and categories for expense modal dropdowns
     async function fetchProjectsAndCategoriesForExpenseModal() {
         try {
-            // Fetch Projects
-            const projectsResponse = await fetch(`${API_BASE_URL}/projects`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
-            const projects = await projectsResponse.json();
+            // Projects: Use cached projects if available, otherwise fetch
+            const projects = allProjects.length > 0 ? allProjects : await (await fetch(`${API_BASE_URL}/projects`, { headers: { 'Authorization': `Bearer ${authToken}` } })).json();
             expenseProjectSelect.innerHTML = '<option value="">اختر مشروع</option>';
             projects.forEach(project => {
                 const option = document.createElement('option');
@@ -701,7 +774,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 expenseProjectSelect.appendChild(option);
             });
 
-            // Fetch Categories
+            // Categories
             const categoriesResponse = await fetch(`${API_BASE_URL}/categories`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
@@ -713,46 +786,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                 option.textContent = category.name;
                 expenseCategorySelect.appendChild(option);
             });
-
         } catch (error) {
-            console.error('Error fetching projects or categories for modal:', error);
-            showToast('فشل جلب بيانات المشاريع أو التصنيفات للمودال.', 'error');
+            console.error('Error fetching projects or categories for expense modal:', error);
+            if (typeof showToast !== 'undefined') showToast('فشل جلب بيانات المشاريع أو التصنيفات لمودال الدفعة.', 'error');
         }
     }
+
+    async function fetchTreasuriesForExpenseModal() {
+        try {
+            const treasuriesResponse = await fetch(`${API_BASE_URL}/treasuries`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!treasuriesResponse.ok) {
+                throw new Error('Failed to fetch treasuries.');
+            }
+            const treasuries = await treasuriesResponse.json();
+            expenseTreasurySelect.innerHTML = '<option value="">اختر خزينة</option>';
+            treasuries.forEach(treasury => {
+                const option = document.createElement('option');
+                option.value = treasury._id;
+                option.textContent = treasury.name;
+                expenseTreasurySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching treasuries for expense modal:', error);
+            if (typeof showToast !== 'undefined') showToast('فشل جلب بيانات الخزائن لمودال الدفعة.', 'error');
+        }
+    }
+
 
     // Handle saving expense (add/edit)
     if (saveExpenseBtn) {
         saveExpenseBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            
+
             const expenseId = expenseIdInput.value;
             const projectIdSelected = expenseProjectSelect.value;
             const amount = parseFloat(expenseAmountInput.value);
             const description = expenseDescriptionInput.value.trim();
             const date = expenseDateInput.value;
+            const contractorIdForExpense = modalContractorIdInput.value;
             const categoryId = expenseCategorySelect.value;
-            const vendorId = modalContractorIdInput.value; // Get contractor ID from hidden input
-            // TODO: Get selected treasury ID here
-            // const treasuryId = document.getElementById('expenseTreasurySelect').value; 
+            const treasuryId = expenseTreasurySelect.value;
 
-            if (!projectIdSelected || !amount || !description || !date || !categoryId || !vendorId) {
-                showToast('الرجاء ملء جميع الحقول المطلوبة لإضافة/تعديل الدفعة.', 'error'); // Changed text
+            if (!projectIdSelected || !amount || !date || !contractorIdForExpense || !categoryId || !treasuryId) {
+                if (typeof showToast !== 'undefined') showToast('الرجاء ملء جميع الحقول المطلوبة لإضافة/تعديل الدفعة.', 'error');
                 return;
             }
             if (isNaN(amount) || amount <= 0) {
-                showToast('المبلغ يجب أن يكون رقماً موجباً.', 'error');
+                if (typeof showToast !== 'undefined') showToast('المبلغ المدفوع يجب أن يكون رقماً موجباً.', 'error');
                 return;
             }
 
             const expenseData = {
+                vendorId: contractorIdForExpense,
                 projectId: projectIdSelected,
+                categoryId: categoryId,
+                treasuryId: treasuryId,
                 amount: amount,
                 description: description,
                 date: date,
-                categoryId: categoryId,
-                vendorId: vendorId,
-                // treasuryId: treasuryId, // Include treasury ID once implemented in backend
-                // attachment: attachmentFile ? attachmentFile.name : undefined // Implement file upload later
+                // attachment: handle file upload separately
             };
 
             let response;
@@ -778,22 +872,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 if (response.ok) {
-                    showToast(`تم ${expenseId ? 'تعديل' : 'حفظ'} الدفعة بنجاح!`, 'success'); // Changed text
+                    if (typeof showToast !== 'undefined') showToast(`تم ${expenseId ? 'تعديل' : 'حفظ'} الدفعة بنجاح!`, 'success');
                     closeExpenseModal();
-                    fetchContractorDetailsAndAllPayments(); // Refresh all data
+                    // Re-fetch all data with the currently active filter
+                    fetchContractorDetailsAndAllPayments(currentFilterProjectId);
                 } else {
                     const errorData = await response.json();
-                    console.error('Failed to save expense (payment):', response.status, errorData.message);
-                    showToast(errorData.message || `فشل ${expenseId ? 'تعديل' : 'حفظ'} الدفعة.`, 'error'); // Changed text
+                    console.error('Failed to save expense:', response.status, errorData.message);
+                    if (typeof showToast !== 'undefined') showToast(errorData.message || `فشل ${expenseId ? 'تعديل' : 'حفظ'} الدفعة.`, 'error');
                 }
             } catch (error) {
-                console.error('Error saving expense (payment):', error);
-                showToast('حدث خطأ في الاتصال بالخادم أثناء حفظ الدفعة.', 'error'); // Changed text
+                console.error('Error saving expense:', error);
+                if (typeof showToast !== 'undefined') showToast('حدث خطأ في الاتصال بالخادم أثناء حفظ الدفعة.', 'error');
             }
         });
     }
 
-    // Delete Expense (Payment)
+    // Delete Expense
     async function deleteExpense(expenseId) {
         try {
             const response = await fetch(`${API_BASE_URL}/expenses/${expenseId}`, {
@@ -801,33 +896,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (response.ok) {
-                showToast('تم حذف الدفعة بنجاح.', 'success'); // Changed text
-                fetchContractorDetailsAndAllPayments(); // Refresh data
+                if (typeof showToast !== 'undefined') showToast('تم حذف الدفعة بنجاح.', 'success');
+                // Re-fetch all data with the currently active filter
+                fetchContractorDetailsAndAllPayments(currentFilterProjectId);
             } else {
                 const errorData = await response.json();
-                console.error('Failed to delete expense (payment):', response.status, errorData.message);
-                showToast(errorData.message || 'فشل حذف الدفعة.', 'error'); // Changed text
+                console.error('Failed to delete expense:', response.status, errorData.message);
+                if (typeof showToast !== 'undefined') showToast(errorData.message || 'فشل حذف الدفعة.', 'error');
             }
         } catch (error) {
-            console.error('Error deleting expense (payment):', error);
-            showToast('حدث خطأ أثناء حذف الدفعة.', 'error'); // Changed text
+            console.error('Error deleting expense:', error);
+            if (typeof showToast !== 'undefined') showToast('حدث خطأ أثناء حذف الدفعة.', 'error');
         }
     }
 
-    // Image Modal Logic (existing)
-    function openImageModal(imageUrl, captionText) {
-        if (imageModal && displayedImage && imageCaption) {
-            displayedImage.src = imageUrl;
-            imageCaption.textContent = captionText;
-            imageModal.style.display = 'block'; // Or 'flex'
-        }
+
+    // --- Image Modal Functions ---
+    function openImageModal(imageUrl, captionText = '') {
+        if (!imageModal) return;
+        displayedImage.src = imageUrl;
+        imageCaption.textContent = captionText;
+        imageModal.style.display = 'block';
     }
 
     function closeImageModal() {
         if (imageModal) {
             imageModal.style.display = 'none';
-            displayedImage.src = '';
-            imageCaption.textContent = '';
+            displayedImage.src = ''; // Clear image source
+            imageCaption.textContent = ''; // Clear caption
         }
     }
 
@@ -842,40 +938,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Event listener for "Edit Contractor" button
-    if (editContractorBtn) {
-        editContractorBtn.addEventListener('click', () => {
-            // Redirect to contractors.html with editId to open modal
-            window.location.href = `contractors.html?editId=${contractorId}`; 
-        });
-    }
+    // Custom Confirmation Modal (replaces browser's confirm)
+    // You should ensure this modal's HTML structure is present in your contractor_payments.html
+    function showConfirmationModal(message, onConfirm) {
+        const modalHtml = `
+            <div id="confirmationModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button" id="closeConfirmationModal">&times;</span>
+                    <p id="confirm-message">${message}</p>
+                    <div class="modal-actions">
+                        <button class="btn btn-danger" id="confirm-yes-btn">نعم</button>
+                        <button class="btn btn-secondary" id="confirm-no-btn">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-    // Event listener for "Delete Contractor" button
-    if (deleteContractorBtn) {
-        deleteContractorBtn.addEventListener('click', async () => {
-            if (confirm('هل أنت متأكد من حذف هذا المقاول؟ سيتم حذف جميع الدفعات والاتفاقات المرتبطة به. لا يمكن التراجع عن هذا الإجراء!')) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/contractors/${contractorId}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${authToken}` }
-                    });
+        // Append modal to body if it doesn't exist
+        if (!document.getElementById('confirmationModal')) {
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
 
-                    if (response.ok) {
-                        showToast('تم حذف المقاول بنجاح.', 'success');
-                        setTimeout(() => { window.location.href = 'contractors.html'; }, 1500);
-                    } else {
-                        const errorData = await response.json();
-                        console.error('Failed to delete contractor:', response.status, errorData.message);
-                        showToast(errorData.message || 'فشل حذف المقاول.', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error deleting contractor:', error);
-                    showToast('حدث خطأ أثناء حذف المقاول.', 'error');
-                }
+        const confirmModal = document.getElementById('confirmationModal');
+        const confirmMessageElement = document.getElementById('confirm-message');
+        const confirmYesBtn = document.getElementById('confirm-yes-btn');
+        const confirmNoBtn = document.getElementById('confirm-no-btn');
+        const closeConfirmModalBtn = document.getElementById('closeConfirmationModal');
+
+        confirmMessageElement.textContent = message;
+        confirmModal.style.display = 'block';
+
+        const cleanup = () => {
+            confirmYesBtn.removeEventListener('click', handleConfirm);
+            confirmNoBtn.removeEventListener('click', handleCancel);
+            closeConfirmModalBtn.removeEventListener('click', handleCancel);
+            confirmModal.style.display = 'none';
+        };
+
+        const handleConfirm = () => {
+            onConfirm();
+            cleanup();
+        };
+
+        const handleCancel = () => {
+            cleanup();
+        };
+
+        confirmYesBtn.addEventListener('click', handleConfirm);
+        confirmNoBtn.addEventListener('click', handleCancel);
+        closeConfirmModalBtn.addEventListener('click', handleCancel);
+
+        // Close on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                cleanup();
             }
         });
     }
 
-    // Initial fetch when page loads
-    fetchContractorDetailsAndAllPayments();
+
+    // Initial Data Load. Pass initialProjectId from URL for the first fetch.
+    fetchContractorDetailsAndAllPayments(currentFilterProjectId);
+
 });
