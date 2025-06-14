@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchTerm = clientSearchInput.value;
 
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients?search=${searchTerm}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients?search=${searchTerm}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function editClient(clientId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let response;
             try {
                 if (clientId) {
-                    response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
+                    response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
                         method: 'PUT', 
                         headers: {
                             'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify(clientData)
                     });
                 } else {
-                    response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/clients', {
+                    response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/clients', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteClient(clientId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${authToken}`

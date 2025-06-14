@@ -13,6 +13,7 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
 const treasuryRoutes = require('./routes/treasuryRoutes');     // استيراد راوتات الخزينة
 const transactionRoutes = require('./routes/transactionRoutes'); // استيراد راوتات المعاملات
+const agreementRoutes = require('./routes/agreementRoutes');   // NEW: استيراد مسارات الاتفاقات
 const cors = require('cors');
 const User = require('./models/User');
 const Treasury = require('./models/Treasury'); // استيراد موديل Treasury
@@ -90,6 +91,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
 app.use('/api/treasuries', treasuryRoutes);      // استخدام راوتات الخزينة
 app.use('/api/transactions', transactionRoutes);  // استخدام راوتات المعاملات
+app.use('/api/agreements', agreementRoutes);     // NEW: استخدام راوتات الاتفاقات
 
 // تقديم الملفات الثابتة (Static Files) من مجلد 'public'
 app.use(express.static(path.join(__dirname, '../public')));

@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/categories', {
+            const response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/categories', {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authToken = localStorage.getItem('authToken');
             try {
-                const response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/categories', {
+                const response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/categories', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authToken = localStorage.getItem('authToken');
             try {
-                const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/categories/${categoryId}`, {
+                const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/categories/${categoryId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteCategory(categoryId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/categories/${categoryId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/categories/${categoryId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${authToken}`

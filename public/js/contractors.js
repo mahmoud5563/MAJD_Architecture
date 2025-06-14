@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSortColumn = null;
     let currentSortDirection = 'asc'; 
 
+    // Base URL for API requests
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api'; // Make sure this matches your backend URL
 
     // دالة لجلب وعرض المقاولين
     async function fetchContractors() {
@@ -32,10 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const searchTerm = contractorSearchInput.value;
+        let queryParams = new URLSearchParams();
+        if (searchTerm) {
+            queryParams.append('search', searchTerm);
+        }
 
         try {
-            // **تحديث الـ endpoint ليتوافق مع الـ Backend API الجديد**
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/contractors?search=${searchTerm}`, {
+            const response = await fetch(`${API_BASE_URL}/contractors?${queryParams.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -49,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('userRole');
                     localStorage.removeItem('username');
+                    localStorage.removeItem('userId');
                     window.location.href = 'index.html';
                 } else {
                     showToast(errorData.message || 'فشل جلب المقاولين. يرجى المحاولة مرة أخرى.', 'error');
@@ -58,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const contractors = await response.json();
             renderContractors(contractors); 
-            // هنا يمكن إضافة logic للـ Pagination
         } catch (error) {
             console.error('Error fetching contractors:', error);
             showToast('حدث خطأ أثناء جلب المقاولين.', 'error');
@@ -71,27 +76,48 @@ document.addEventListener('DOMContentLoaded', () => {
         contractorsTableBody.innerHTML = ''; 
 
         if (contractors.length === 0) {
-            contractorsTableBody.innerHTML = '<tr><td colspan="5">لا توجد مقاولون مطابقون.</td></tr>';
+            contractorsTableBody.innerHTML = '<tr><td colspan="6">لا توجد مقاولون مطابقون.</td></tr>'; // Increased colspan for new button
             return;
         }
 
+        const currentUserRole = localStorage.getItem('userRole');
+
         contractors.forEach(contractor => {
             const row = document.createElement('tr');
+            
+            let actionsHtml = '';
+
+            // زر عرض التفاصيل (View Details - if you have a separate details page)
+            actionsHtml += `<button class="btn-action view-contractor" data-id="${contractor._id}"><i class="fas fa-eye"></i> عرض</button>`;
+
+            // زر تعديل: متاح للآدمن ومدير الحسابات
+            if (currentUserRole === 'admin' || currentUserRole === 'account_manager') {
+                actionsHtml += `<button class="btn-action edit-contractor" data-id="${contractor._id}"><i class="fas fa-edit"></i> تعديل</button>`;
+            }
+
+            // زر حذف: متاح للآدمن ومدير الحسابات
+            if (currentUserRole === 'admin' || currentUserRole === 'account_manager') {
+                actionsHtml += `<button class="btn-action delete-contractor" data-id="${contractor._id}"><i class="fas fa-trash-alt"></i> حذف</button>`;
+            }
+
+            // NEW: زر الدفعات: متاح للآدمن ومدير الحسابات والمهندس
+            if (currentUserRole === 'admin' || currentUserRole === 'account_manager' || currentUserRole === 'engineer') {
+                actionsHtml += `<button class="btn-action view-payments" data-id="${contractor._id}"><i class="fas fa-money-bill-wave"></i> الدفعات</button>`;
+            }
+
+
             row.innerHTML = `
                 <td>${contractor.name}</td>
                 <td>${contractor.email || 'لا يوجد'}</td>
                 <td>${contractor.phone || 'لا يوجد'}</td>
                 <td>${contractor.specialty || 'لا يوجد'}</td>
                 <td class="actions">
-                    <button class="btn-action view-contractor" data-id="${contractor._id}"><i class="fas fa-eye"></i> عرض</button>
-                    <button class="btn-action edit-contractor" data-id="${contractor._id}"><i class="fas fa-edit"></i> تعديل</button>
-                    <button class="btn-action delete-contractor" data-id="${contractor._id}"><i class="fas fa-trash-alt"></i> حذف</button>
+                    ${actionsHtml}
                 </td>
             `;
             contractorsTableBody.appendChild(row);
         });
 
-        // إضافة مستمعي الأحداث لأزرار الإجراءات
         addContractorActionListeners();
     }
 
@@ -100,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.view-contractor').forEach(button => {
             button.addEventListener('click', (e) => {
                 const contractorId = e.currentTarget.dataset.id;
-                // هنا سيتم توجيه المستخدم لصفحة عرض تفاصيل المقاول (اختياري)
+                // يمكنك توجيه المستخدم لصفحة تفاصيل المقاول إذا كان لديك واحدة
                 showToast(`عرض تفاصيل المقاول ID: ${contractorId} (قيد التنفيذ)`, 'info');
             });
         });
@@ -120,6 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+
+        // NEW: Event listener for "View Payments" button
+        document.querySelectorAll('.view-payments').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const contractorId = e.currentTarget.dataset.id;
+                window.location.href = `contractor-payments.html?id=${contractorId}`;
+            });
+        });
     }
 
     // دالة لفتح المودال لإضافة مقاول جديد
@@ -133,8 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function editContractor(contractorId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            // **تحديث الـ endpoint ليتوافق مع الـ Backend API الجديد**
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/contractors/${contractorId}`, {
+            const response = await fetch(`${API_BASE_URL}/contractors/${contractorId}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -153,12 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // دالة لفتح/ملء المودال (لإضافة أو تعديل)
     function openContractorModal(mode = 'add', contractor = null) {
         if (contractorModal) {
             contractorModal.style.display = 'flex';
-            contractorForm.reset(); // تفريغ الفورم
+            contractorForm.reset(); 
 
             if (mode === 'add') {
                 contractorModalTitle.textContent = 'إضافة مقاول جديد';
@@ -220,8 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let response;
             try {
                 if (contractorId) { // تعديل
-                    // **تحديث الـ endpoint ليتوافق مع الـ Backend API الجديد**
-                    response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/contractors/${contractorId}`, {
+                    response = await fetch(`${API_BASE_URL}/contractors/${contractorId}`, {
                         method: 'PUT', 
                         headers: {
                             'Content-Type': 'application/json',
@@ -230,8 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify(contractorData)
                     });
                 } else { // إضافة
-                    // **تحديث الـ endpoint ليتوافق مع الـ Backend API الجديد**
-                    response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/contractors', {
+                    response = await fetch(`${API_BASE_URL}/contractors`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -261,8 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteContractor(contractorId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            // **تحديث الـ endpoint ليتوافق مع الـ Backend API الجديد**
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/contractors/${contractorId}`, {
+            const response = await fetch(`${API_BASE_URL}/contractors/${contractorId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${authToken}`
@@ -293,8 +322,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // NEW: Function to handle initial load, checking for editId
+    async function fetchContractorsOnLoad() {
+        await fetchContractors(); // Fetch all contractors first
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('editId');
+        if (editId) {
+            // Remove editId from URL to prevent reopening modal on refresh
+            urlParams.delete('editId');
+            const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            history.replaceState(null, '', newUrl);
+
+            await editContractor(editId); // Open modal for editing
+        }
+    }
+
     // جلب المقاولين عند تحميل الصفحة لأول مرة
-    fetchContractors();
+    fetchContractorsOnLoad();
 
     // فرز الجدول
     const tableHeaders = document.querySelectorAll('.data-table th[data-sort]');
@@ -307,8 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSortColumn = column;
                 currentSortDirection = 'asc';
             }
-            // هنا ستحتاج لإعادة فرز البيانات المعروضة
-            // الأفضل أن يتم الفرز في الـ Backend إذا كانت البيانات كبيرة
             showToast(`سيتم الفرز حسب: ${column} (${currentSortDirection === 'asc' ? 'تصاعدي' : 'تنازلي'})`, 'info');
         });
     });

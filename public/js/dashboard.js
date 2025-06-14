@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // **تم تعديل الـ endpoint ليتوافق مع الـ Backend**
-            const response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/dashboard/summary', {
+            const response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/dashboard/summary', {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }

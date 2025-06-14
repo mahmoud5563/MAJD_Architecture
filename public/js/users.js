@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const roleFilter = userRoleFilter ? userRoleFilter.value : '';
 
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/users?search=${searchTerm}&role=${roleFilter}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/users?search=${searchTerm}&role=${roleFilter}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function editUser(userId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let response;
             try {
                 if (userId) { // تعديل
-                    response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
+                    response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
                         method: 'PUT', 
                         headers: {
                             'Content-Type': 'application/json',
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify(userData)
                     });
                 } else { // إضافة
-                    response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/register', { 
+                    response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/register', { 
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteUser(userId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${authToken}`

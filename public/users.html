@@ -20,22 +20,25 @@
             <nav class="sidebar-nav">
                 <ul>
                     <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li class="sidebar-item-dashboard"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
-                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li class="sidebar-item-add-project"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
-                    <!-- المشاريع: مرئية للجميع (Admin, Account Manager, Engineer) -->
-                    <li class="sidebar-item-projects"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <!-- المشاريع: مرئية للجميع -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
                     <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li class="sidebar-item-clients"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
                     <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li class="sidebar-item-contractors"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
-                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
-                    <li><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
-                    <!-- المستخدمون: مرئية للآدمن ومدير الحسابات فقط -->
-                    <li class="sidebar-item-users"><a href="users.html" class="active"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
-                    <!-- الإعدادات: مرئية للجميع (Admin, Account Manager, Engineer) -->
-                    <li class="sidebar-item-settings"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <li data-access-role="admin,account_manager"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                                         <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    <!-- عهد المهندسين: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    <!-- المستخدمون: مرئية للآدمن فقط -->
+                    <li data-access-role="admin"><a href="users.html" class="active"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    <!-- الإعدادات: مرئية للجميع -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
                     <!-- تسجيل الخروج: مرئي للجميع -->
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
                 </ul>
@@ -63,7 +66,8 @@
             <section class="users-section">
                 <div class="section-header">
                     <h3>إدارة المستخدمين</h3>
-                    <button class="btn btn-primary" id="addUserBtn"><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</button>
+                    <!-- زر إضافة مستخدم جديد: مرئي للآدمن فقط -->
+                    <button class="btn btn-primary" id="addUserBtn" data-access-role="admin"><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</button>
                 </div>
 
                 <div class="filter-bar">
@@ -89,11 +93,13 @@
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
-                            </tbody>
+                            <!-- User data will be loaded here by JavaScript -->
+                        </tbody>
                     </table>
                 </div>
                 <div class="pagination" id="usersPagination">
-                    </div>
+                    <!-- Pagination buttons will be loaded here by JavaScript -->
+                </div>
             </section>
         </main>
     </div>

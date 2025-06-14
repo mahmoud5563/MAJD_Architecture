@@ -17,7 +17,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
-            display: flex;
+            display: flex; /* Kept flex display as default for these sections */
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
@@ -70,13 +70,8 @@
             background-color: var(--success-color);
         }
 
-        /* Specific styles for hiding elements based on role */
-        .engineer-view-only {
-            display: none; /* Hidden by default, shown via JS for engineers */
-        }
-        .admin-manager-view-only {
-            display: flex; /* Shown by default for admin/manager, hidden for engineer */
-        }
+        /* Removed specific display: none/flex rules for .engineer-view-only and .admin-manager-view-only
+           as their visibility will be controlled by data-access-role and auth.js script. */
     </style>
 </head>
 <body>
@@ -88,18 +83,33 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
-                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
-                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
-                    <li><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
-                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
-                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
-                    <!-- NEW: Engineer Custody Details Link -->
-                    <li><a href="engineer-custody-details.html" class="active"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
-                    <!-- END NEW -->
-                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
-                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <!-- المشاريع: مرئية للجميع -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                                         
+                    <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    
+                    <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    
+                    <!-- عهد المهندسين: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html" class="active"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    
+                    <!-- المستخدمون: مرئية للآدمن فقط -->
+                    <li data-access-role="admin"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    
+                    <!-- الإعدادات: مرئية للجميع (Admin, Account Manager, Engineer) -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    
+                    <!-- تسجيل الخروج: مرئي للجميع -->
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
                 </ul>
             </nav>
@@ -124,7 +134,7 @@
             </header>
 
             <!-- Engineer Selection (Admin/Account Manager Only) -->
-            <section class="engineer-selection-section admin-manager-view-only">
+            <section class="engineer-selection-section" data-access-role="admin,account_manager">
                 <label for="engineerSelectFilter">اختر المهندس:</label>
                 <select id="engineerSelectFilter" class="select-filter">
                     <option value="">اختر مهندس لعرض عهدته</option>
@@ -133,7 +143,7 @@
             </section>
 
             <!-- Project Selection (Admin/Account Manager Only, visible after engineer selection) -->
-            <section class="project-selection-section admin-manager-view-only" style="display: none;">
+            <section class="project-selection-section" data-access-role="admin,account_manager" style="display: none;">
                 <label for="projectSelectFilter">اختر المشروع:</label>
                 <select id="projectSelectFilter" class="select-filter">
                     <option value="">كل المشاريع</option>

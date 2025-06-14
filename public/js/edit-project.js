@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectNotesInput = document.getElementById('projectNotes');
 
     // Base URL for API requests
-    const API_BASE_URL = 'https://7500-156-203-135-174.ngrok-free.app/api';
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api';
 
     // Get project ID from URL
     const urlParams = new URLSearchParams(window.location.search);

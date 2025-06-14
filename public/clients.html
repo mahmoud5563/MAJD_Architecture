@@ -6,7 +6,9 @@
     <title>العملاء - MAJD Architecture</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/forms.css"> <link rel="stylesheet" href="css/clients.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/forms.css"> 
+    <link rel="stylesheet" href="css/table.css"> <!-- للتأكد من تنسيق الجداول -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -17,16 +19,33 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
-                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
-                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
-                    <li><a href="clients.html" class="active"><i class="fas fa-users"></i>العملاء</a></li>
-                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
-                    <li><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
-                    <li><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
-                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
-                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <!-- المشاريع: مرئية للجميع -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="clients.html" class="active"><i class="fas fa-users"></i>العملاء</a></li>
+                    <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                                         
+                    <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    
+                    <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    
+                    <!-- عهد المهندسين: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    
+                    <!-- المستخدمون: مرئية للآدمن فقط -->
+                    <li data-access-role="admin"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    
+                    <!-- الإعدادات: مرئية للجميع (Admin, Account Manager, Engineer) -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    
+                    <!-- تسجيل الخروج: مرئي للجميع -->
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
                 </ul>
             </nav>
@@ -50,17 +69,14 @@
                 </div>
             </header>
 
-            <section class="clients-section">
-                <div class="section-header">
-                    <h3>قائمة العملاء</h3>
-                    <button class="btn btn-primary" id="addClientBtn"><i class="fas fa-plus"></i> إضافة عميل جديد</button>
+            <section class="data-section">
+                <div class="data-header">
+                    <div class="search-filter">
+                        <input type="text" id="clientSearch" placeholder="بحث باسم العميل أو الإيميل..." class="search-input">
+                        <button class="btn btn-secondary" id="applyClientFiltersBtn"><i class="fas fa-search"></i> بحث</button>
+                    </div>
+                    <button class="btn btn-primary" id="addClientBtn"><i class="fas fa-plus"></i> إضافة عميل</button>
                 </div>
-
-                <div class="filter-bar">
-                    <input type="text" id="clientSearch" placeholder="ابحث باسم العميل، البريد الإلكتروني أو الهاتف..." class="search-input">
-                    <button class="btn btn-secondary" id="applyClientFiltersBtn"><i class="fas fa-filter"></i> تطبيق الفلاتر</button>
-                </div>
-
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -73,21 +89,29 @@
                             </tr>
                         </thead>
                         <tbody id="clientsTableBody">
-                            </tbody>
+                            <!-- سيتم ملؤها بواسطة clients.js -->
+                            <tr><td colspan="5">جاري تحميل العملاء...</td></tr>
+                        </tbody>
                     </table>
                 </div>
-                <div class="pagination" id="clientsPagination">
-                    </div>
+                <!-- يمكنك إضافة Pagination Controls هنا لاحقاً -->
+                <!-- <div class="pagination-controls">
+                    <button class="btn btn-secondary" id="prevPageBtn">السابق</button>
+                    <span id="currentPageInfo">صفحة 1 من 1</span>
+                    <button class="btn btn-secondary" id="nextPageBtn">التالي</button>
+                </div> -->
             </section>
         </main>
     </div>
 
+    <!-- Client Modal (Add/Edit) -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h3 id="clientModalTitle">إضافة عميل جديد</h3>
             <form id="clientForm">
-                <input type="hidden" id="clientId">
+                <input type="hidden" id="clientId"> <!-- هذا لتخزين ID العميل في وضع التعديل -->
+
                 <div class="form-group">
                     <label for="clientName">اسم العميل</label>
                     <input type="text" id="clientName" name="clientName" required>
@@ -97,8 +121,8 @@
                     <input type="email" id="clientEmail" name="clientEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="clientPhone">الهاتف</label>
-                    <input type="text" id="clientPhone" name="clientPhone" required>
+                    <label for="clientPhone">رقم الهاتف</label>
+                    <input type="tel" id="clientPhone" name="clientPhone" required>
                 </div>
                 <div class="form-group">
                     <label for="clientCompany">الشركة (اختياري)</label>
@@ -114,6 +138,8 @@
     </div>
 
     <script src="js/main.js"></script>
-    <script src="js/clients.js"></script> <script src="js/auth.js"></script>
-    <script src="js/utils.js"></script> </body>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/clients.js"></script> <!-- هذا هو ملف JavaScript الخاص بهذه الصفحة -->
+</body>
 </html>

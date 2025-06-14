@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/projects?${queryParams.toString()}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/projects?${queryParams.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteProject(projectId) {
         const authToken = localStorage.getItem('authToken');
         try {
-            const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/projects/${projectId}`, {
+            const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/projects/${projectId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${authToken}`
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const authToken = localStorage.getItem('authToken');
         try {
             // جلب المقاولين
-            const vendorsResponse = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/contractors', {
+            const vendorsResponse = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/contractors', {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             const vendors = await vendorsResponse.json();
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // جلب التصنيفات
-            const categoriesResponse = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/categories', {
+            const categoriesResponse = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/categories', {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             const categories = await categoriesResponse.json();
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authToken = localStorage.getItem('authToken');
             try {
-                const response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/expenses', {
+                const response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/expenses', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authToken = localStorage.getItem('authToken');
             try {
-                const response = await fetch('https://7500-156-203-135-174.ngrok-free.app/api/incomes', {
+                const response = await fetch('https://6943-156-203-135-174.ngrok-free.app/api/incomes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -6,17 +6,15 @@ const expenseSchema = mongoose.Schema(
         projectId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'Project', // ربط المصروف بالمشروع
+            ref: 'Project',
         },
         amount: {
             type: Number,
             required: true,
-            min: 0,
         },
         description: {
             type: String,
             required: true,
-            trim: true,
         },
         date: {
             type: Date,
@@ -25,21 +23,26 @@ const expenseSchema = mongoose.Schema(
         categoryId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'Category', // ربط المصروف بالتصنيف (مثل مواد، أجور)
+            ref: 'Category', // Assuming you have a Category model for expense categories
         },
         vendorId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'Contractor', // ربط المصروف بالمقاول/المورد
+            ref: 'Contractor', // Assuming you have a Contractor model for vendors
         },
-        attachment: { // مرفق الفاتورة أو الإيصال (يمكن تخزين مسار الملف أو URL)
-            type: String,
-            required: false,
+        attachment: {
+            type: String, // URL or path to the attachment file
+            required: false, // Attachment is optional
         },
-        // يمكن إضافة حقول أخرى مثل من قام بإضافة المصروف (userID)
+        // NEW: Field to track which user created this expense
+        createdBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true, // Should always know who created it
+            ref: 'User',    // Refers to the User model
+        },
     },
     {
-        timestamps: true, // لإضافة حقلي createdAt و updatedAt تلقائياً
+        timestamps: true, // Adds createdAt and updatedAt timestamps
     }
 );
 

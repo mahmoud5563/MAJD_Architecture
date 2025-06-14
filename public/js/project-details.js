@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let allIncomes = [];    // لتخزين الإيرادات لجعلها متاحة للتصدير
 
     // Base URL for API requests
-    const API_BASE_URL = 'http://localhost:5000/api';
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api';
 
 
     // 1. التحقق من الصلاحيات ووجود ID المشروع

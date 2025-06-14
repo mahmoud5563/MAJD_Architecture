@@ -22,14 +22,10 @@
             margin-bottom: 20px;
             color: var(--primary-dark);
         }
-        /* Hide for engineer role */
-        .admin-manager-only {
-            display: block; /* Default for admin/manager */
-        }
-        /* Specific override for project selection section */
-        .project-selection-custody {
-            display: none; /* Hidden by default, shown by JS */
-        }
+        /* NOTE: The .admin-manager-only CSS rule for display: none; has been removed
+                 as visibility will now be controlled by data-access-role attribute
+                 and auth.js script. */
+        /* .project-selection-custody visibility will be controlled by data-access-role attribute */
     </style>
 </head>
 <body>
@@ -41,16 +37,33 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
-                    <li><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
-                    <li><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
-                    <li><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
-                    <li><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
-                    <li class="admin-manager-only"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
-                    <li><a href="custody-treasury.html" class="active"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
-                    <li><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i>عهد المهندسين</a></li>
-                    <li class="admin-only"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
-                    <li class="admin-manager-only"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    <!-- الرئيسية: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="dashboard.html"><i class="fas fa-home"></i>الرئيسية</a></li>
+                    <!-- إضافة مشروع: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="add-project.html"><i class="fas fa-plus-circle"></i>إضافة مشروع</a></li>
+                    <!-- المشاريع: مرئية للجميع -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="projects.html"><i class="fas fa-tasks"></i>المشاريع</a></li>
+                    <!-- العملاء: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="clients.html"><i class="fas fa-users"></i>العملاء</a></li>
+                    <!-- المقاولون: مرئية للآدمن ومدير الحسابات فقط -->
+                    <li data-access-role="admin,account_manager"><a href="contractors.html"><i class="fas fa-hard-hat"></i>المقاولون</a></li>
+                                         
+                    <!-- الخزينة الرئيسية: مرئية للآدمن ومدير الحسابات -->
+                    <li data-access-role="admin,account_manager"><a href="main-treasury.html"><i class="fas fa-money-check-alt"></i>الخزينة الرئيسية</a></li>
+                    
+                    <!-- خزينة العهد: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="custody-treasury.html" class="active"><i class="fas fa-hand-holding-usd"></i>خزينة العهد</a></li>
+                    
+                    <!-- عهد المهندسين: مرئية للآدمن ومدير الحسابات والمهندس -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="engineer-custody-details.html"><i class="fas fa-wallet"></i> عهد المهندسين</a></li>
+                    
+                    <!-- المستخدمون: مرئية للآدمن فقط -->
+                    <li data-access-role="admin"><a href="users.html"><i class="fas fa-user-shield"></i>المستخدمون</a></li>
+                    
+                    <!-- الإعدادات: مرئية للجميع (Admin, Account Manager, Engineer) -->
+                    <li data-access-role="admin,account_manager,engineer"><a href="settings.html"><i class="fas fa-cog"></i>الإعدادات</a></li>
+                    
+                    <!-- تسجيل الخروج: مرئي للجميع -->
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i>تسجيل الخروج</a></li>
                 </ul>
             </nav>
@@ -75,12 +88,13 @@
             </header>
 
             <!-- Engineer Custody Balance (Engineer View Only) -->
-            <section class="admin-manager-only" id="custodyBalanceDisplaySection" style="display: none;">
+            <!-- هذا القسم سيكون مرئياً للمهندس أيضاً -->
+            <section id="custodyBalanceDisplaySection" data-access-role="engineer" style="display: none;">
                 <p id="custodyBalanceDisplay" class="status-info" style="text-align: right; font-size: 1.2rem; font-weight: bold;"></p>
             </section>
 
             <!-- Assign Custody Section (Admin/Account Manager Only) -->
-            <section class="assign-custody-section admin-manager-only">
+            <section class="assign-custody-section" data-access-role="admin,account_manager">
                 <h3>تعيين عهدة لمهندس</h3>
                 <form id="assignCustodyForm">
                     <div class="form-group">
@@ -91,8 +105,8 @@
                         </select>
                     </div>
 
-                    <!-- NEW: Project Selection Field -->
-                    <div class="form-group project-selection-custody">
+                    <!-- NEW: Project Selection Field - Visible to Admin/Account Manager to assign custody -->
+                    <div class="form-group project-selection-custody" data-access-role="admin,account_manager">
                         <label for="projectSelect">المشروع</label>
                         <select id="projectSelect" required>
                             <option value="">اختر مشروع</option>
@@ -128,7 +142,7 @@
                                 <th>الوصف</th>
                                 <th>المشروع</th> <!-- NEW: Added Project Column -->
                                 <th>تم بواسطة</th>
-                                <th>الإجراءات</th>
+                                <th data-access-role="admin,account_manager">الإجراءات</th> <!-- Actions column visible only to Admin/Account Manager -->
                             </tr>
                         </thead>
                         <tbody id="custodyTransactionsTableBody">

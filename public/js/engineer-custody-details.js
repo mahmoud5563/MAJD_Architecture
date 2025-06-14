@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const remainingCustodyBalanceSpan = document.getElementById('remainingCustodyBalance');
     const custodyExpensesTableBody = document.getElementById('custodyExpensesTableBody');
 
-    const API_BASE_URL = 'http://localhost:5000/api'; // استخدام localhost
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api'; // استخدام localhost
 
     const currentUserRole = localStorage.getItem('userRole');
     const currentUserId = localStorage.getItem('userId');

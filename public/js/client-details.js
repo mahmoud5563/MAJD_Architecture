@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             // جلب تفاصيل العميل
-            const clientResponse = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
+            const clientResponse = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // جلب المشاريع المرتبطة بهذا العميل (باستخدام endpoint جديد إذا كان متوفراً في Backend)
             // بما أن الموديل Project.js لا يحتوي على حقل clientId حتى الآن، سنفترض هذا الـ endpoint لغرض العرض
             // في Backend، ستحتاج لإضافة حقل clientId إلى Project Model ومسار لجلب المشاريع بواسطة clientId.
-            const projectsResponse = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/projects?clientId=${clientId}`, { // هذا الـ endpoint افتراضي وغير موجود بعد
+            const projectsResponse = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/projects?clientId=${clientId}`, { // هذا الـ endpoint افتراضي وغير موجود بعد
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
 
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (confirm('هل أنت متأكد من حذف هذا العميل؟ سيتم حذف جميع المشاريع المرتبطة به.')) {
                 const authToken = localStorage.getItem('authToken');
                 try {
-                    const response = await fetch(`https://7500-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
+                    const response = await fetch(`https://6943-156-203-135-174.ngrok-free.app/api/clients/${clientId}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${authToken}` }
                     });

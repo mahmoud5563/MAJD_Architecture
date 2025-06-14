@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyTransactionFiltersBtn = document.getElementById('applyTransactionFiltersBtn');
     const resetTransactionFiltersBtn = document.getElementById('resetTransactionFiltersBtn');
 
-    const API_BASE_URL = 'https://7500-156-203-135-174.ngrok-free.app/api';
+    const API_BASE_URL = 'https://6943-156-203-135-174.ngrok-free.app/api';
     let currentOperationType = ''; // 'deposit' or 'withdrawal'
 
     // Check user role and redirect if not authorized
