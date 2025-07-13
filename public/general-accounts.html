@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحسابات العامة - MAJD Architecture</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #014C47;
+            --primary-dark: #003a35;
+            --secondary-bg: #e6e6e6;
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --border-color: #ddd;
+            --sidebar-width: 250px;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            direction: rtl;
+            text-align: right;
+        }
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .header .user-info span {
+            margin-right: 15px;
+        }
+        .header .logout-button {
+            background-color: var(--primary-dark);
+            color: var(--light-text-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .header .logout-button:hover {
+            background-color: #002b28;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li {
+            margin-bottom: 5px;
+        }
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar ul li a i {
+            margin-left: 10px;
+            font-size: 18px;
+        }
+        .sidebar ul li a:hover,
+        .sidebar ul li.active a,
+        .sidebar ul li a.active {
+            background-color: var(--primary-dark);
+            border-radius: 0 20px 20px 0;
+        }
+        .content-area {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .page-header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 28px;
+        }
+        .filter-container {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-controls .form-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 180px;
+        }
+        .filter-controls label {
+            display: block;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .filter-controls input,
+        .filter-controls select {
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .filter-controls input:focus,
+        .filter-controls select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .filter-controls button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            height: 40px;
+            min-width: 100px;
+        }
+        .filter-controls button:hover {
+            background-color: var(--primary-dark);
+        }
+        .filter-controls button i {
+            margin-left: 8px;
+        }
+        .table-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .data-table th {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        tfoot td {
+            font-weight: bold;
+            background: #f1f3fa;
+        }
+        @media (max-width: 700px) {
+            .main-container { flex-direction: column; }
+            .sidebar { width: 100%; min-height: unset; }
+            .filter-controls .form-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MAJD Architecture</div>
+        <div class="user-info">
+            <span id="loggedInUser"></span>
+            <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="/dashboard.html" data-page="dashboard"><i class="fas fa-home"></i>الرئيسية</a></li>
+                <li><a href="/projects.html" data-page="projects"><i class="fas fa-project-diagram"></i> المشاريع</a></li>
+                <li><a href="/clients.html" data-page="clients"><i class="fas fa-users"></i> العملاء</a></li>
+                <li><a href="/contractors.html" data-page="contractors"><i class="fas fa-hard-hat"></i> المقاولون</a></li>
+                <li><a href="/treasuries.html" data-page="treasuries"><i class="fas fa-boxes"></i> عرض الخزائن</a></li>
+                <li><a href="/general-expenses.html" data-page="general-expenses"><i class="fas fa-money-bill-wave"></i> المصروفات العامة</a></li>
+                <li><a href="/employees.html" data-page="employees"><i class="fas fa-user-tie"></i> الموظفين</a></li>
+                <li><a href="/users.html" data-page="users"><i class="fas fa-user-friends"></i> المستخدمون</a></li>
+                <li><a href="/categories.html" data-page="categories"><i class="fas fa-tags"></i> إدارة التصنيفات</a></li>
+                <li><a href="/warehouses.html" data-page="warehouses"><i class="fas fa-warehouse"></i> المخازن</a></li>
+                <li><a href="/sales.html" data-page="sales"><i class="fas fa-shopping-cart"></i> المبيعات</a></li>
+                <li><a href="/purchases.html" data-page="purchases"><i class="fas fa-truck"></i> المشتريات</a></li>
+                <li><a href="/suppliers.html" data-page="suppliers"><i class="fas fa-truck"></i> الموردين</a></li>
+                <li><a href="/general-accounts.html" data-page="general-accounts"><i class="fas fa-calculator"></i> الحسابات العامة</a></li>
+                <li><a href="#" id="sidebarLogoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+            </ul>
+        </div>
+        <div class="content-area" id="contentArea">
+            <div class="page-header">
+                <h1>الحسابات العامة</h1>
+            </div>
+            <div class="filter-container">
+                <form class="filter-controls" id="filterForm">
+                    <div class="form-group">
+                        <label for="fromDate">من تاريخ</label>
+                        <input type="date" id="fromDate" name="fromDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="toDate">إلى تاريخ</label>
+                        <input type="date" id="toDate" name="toDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="type">نوع العملية</label>
+                        <select id="type" name="type">
+                            <option value="">الكل</option>
+                            <option value="expense">مصروف</option>
+                            <option value="revenue">إيراد</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="project">المشروع</label>
+                        <select id="project" name="project">
+                            <option value="">كل المشاريع</option>
+                        </select>
+                    </div>
+                    <button type="submit">
+                        <i class="fas fa-filter"></i> تطبيق الفلتر
+                    </button>
+                </form>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="accountsTable">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>الوصف</th>
+                            <th>المبلغ</th>
+                            <th>النوع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم تعبئة البيانات هنا -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2">الإجمالي</td>
+                            <td id="totalAmountCell">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loggedInUser').textContent = localStorage.getItem('username') || '';
+        document.getElementById('logoutButton').onclick = function() {
+            localStorage.clear();
+            window.location.href = '/';
+        };
+        document.querySelectorAll('.sidebar ul li a').forEach(a => {
+            if (a.getAttribute('href') === window.location.pathname) a.classList.add('active');
+        });
+        const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetchAccounts();
+        });
+        async function fetchProjects() {
+            try {
+                const res = await fetch(`${BASE_URL}/api/projects`, {
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                });
+                const data = await res.json();
+                const select = document.getElementById('project');
+                data.forEach(project => {
+                    const opt = document.createElement('option');
+                    opt.value = project._id;
+                    opt.textContent = project.projectName || project.name || project._id;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                // تجاهل الخطأ أو أضف رسالة
+            }
+        }
+        function fetchAccounts() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const type = document.getElementById('type').value;
+            const project = document.getElementById('project').value;
+            let url = `${BASE_URL}/api/general-accounts?`;
+            if (fromDate) url += `from=${fromDate}&`;
+            if (toDate) url += `to=${toDate}&`;
+            if (type) url += `type=${type}&`;
+            if (project) url += `project=${project}`;
+            fetch(url)
+                .then(res => res.json())
+                .then(data => populateTable(data))
+                .catch(err => {
+                    document.querySelector('#accountsTable tbody').innerHTML = `<tr><td colspan="4">تعذر تحميل البيانات</td></tr>`;
+                });
+        }
+        function populateTable(data) {
+            const tbody = document.querySelector('#accountsTable tbody');
+            const totalCell = document.getElementById('totalAmountCell');
+            tbody.innerHTML = '';
+            if (!data || !data.length) {
+                tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
+                totalCell.textContent = '0.00';
+                return;
+            }
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(item.date).toLocaleDateString('en-GB')}</td>
+                    <td>${item.reason || ''}</td>
+                    <td class="amount-cell">${item.amount != null ? item.amount : ''}</td>
+                    <td class="type-cell">${item.type === 'expense' ? 'مصروف' : (item.type === 'revenue' ? 'إيراد' : 'أخرى')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            let total = 0;
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const amountTd = row.querySelector('.amount-cell');
+                const typeTd = row.querySelector('.type-cell');
+                if (amountTd && typeTd) {
+                    let val = Number(amountTd.textContent.replace(/,/g, ''));
+                    if (isNaN(val)) val = 0;
+                    if (val < 0) {
+                        total += val;
+                    } else if (typeTd.textContent.trim() === 'مصروف') {
+                        total -= val;
+                    } else {
+                        total += val;
+                    }
+                }
+            });
+            totalCell.textContent = total.toLocaleString('en-US', {minimumFractionDigits: 2});
+        }
+        fetchProjects();
+        fetchAccounts();
+    </script>
+</body>
+</html>

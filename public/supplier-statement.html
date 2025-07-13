@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كشف حساب مورد - MAJD Architecture</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e6e6e6; margin: 0; }
+        .header { background: #014C47; color: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .main-container { display: flex; }
+        .sidebar { width: 250px; background: #014C47; color: #fff; min-height: 100vh; padding-top: 20px; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar ul li { margin-bottom: 5px; }
+        .sidebar ul li a { color: #fff; text-decoration: none; display: flex; align-items: center; padding: 12px 20px; }
+        .sidebar ul li a i { margin-left: 10px; }
+        .sidebar ul li a:hover, .sidebar ul li.active a { background: #003a35; border-radius: 0 20px 20px 0; }
+        .content-area { flex: 1; padding: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h1 { color: #014C47; margin: 0; font-size: 28px; }
+        .supplier-info { background: #fff; padding: 18px 22px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .supplier-info span { display: inline-block; min-width: 120px; font-weight: bold; color: #014C47; }
+        .table-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px 15px; border: 1px solid #eee; text-align: right; }
+        th { background: #014C47; color: #fff; }
+        .summary { margin-top: 20px; background: #f7f7f7; padding: 15px 20px; border-radius: 8px; font-size: 18px; color: #014C47; }
+        .back-btn { background: #014C47; color: #fff; border: none; padding: 8px 18px; border-radius: 5px; font-size: 16px; cursor: pointer; margin-bottom: 18px; }
+        .back-btn:hover { background: #003a35; }
+        @media (max-width: 900px) { .content-area { padding: 10px; } }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 30px 24px;
+            border-radius: 10px;
+            min-width: 320px;
+            max-width: 95vw;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            font-size: 1.5rem;
+            color: #888;
+            cursor: pointer;
+        }
+        .modal-form-group {
+            margin-bottom: 18px;
+        }
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .modal-form-group input,
+        .modal-form-group select {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .modal-message {
+            margin-bottom: 10px;
+            padding: 7px 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            display: none;
+        }
+        .modal-message.success {
+            background: #e6f9e6;
+            color: #1a7f37;
+            border: 1px solid #1a7f37;
+        }
+        .modal-message.error {
+            background: #ffeaea;
+            color: #c00;
+            border: 1px solid #c00;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .modal-button {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 5px;
+            background: #014C47;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-button.cancel {
+            background: #888;
+        }
+        .modal-button:hover {
+            background: #01796f;
+        }
+        .modal-button.cancel:hover {
+            background: #555;
+        }
+        .payment-btn {
+            margin: 18px 0 24px 0;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg,#1abc9c,#014C47);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 32px;
+            box-shadow: 0 2px 8px rgba(1,76,71,0.08);
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: background 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .payment-btn:hover {
+            background: linear-gradient(90deg,#01796f,#014C47);
+            box-shadow: 0 4px 16px rgba(1,76,71,0.13);
+        }
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        .payments-table th, .payments-table td {
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            text-align: right;
+        }
+        .payments-table th {
+            background: #1abc9c;
+            color: #fff;
+            font-size: 1.08rem;
+        }
+        .payments-table td {
+            font-size: 1.05rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MAJD Architecture</div>
+        <div><a href="/suppliers.html" style="color:#fff;text-decoration:none;">رجوع للموردين</a></div>
+    </div>
+    <div class="main-container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="/dashboard.html" data-page="dashboard"><i class="fas fa-home"></i>الرئيسية</a></li>
+                <li><a href="/projects.html" data-page="projects"><i class="fas fa-project-diagram"></i> المشاريع</a></li>
+                <li><a href="/clients.html" data-page="clients"><i class="fas fa-users"></i> العملاء</a></li>
+                <li><a href="/contractors.html" data-page="contractors"><i class="fas fa-hard-hat"></i> المقاولون</a></li>
+                <li><a href="/treasuries.html" data-page="treasuries"><i class="fas fa-boxes"></i> عرض الخزائن</a></li>
+                <li><a href="/general-expenses.html" data-page="general-expenses"><i class="fas fa-money-bill-wave"></i> المصروفات العامة</a></li>
+                <li><a href="/employees.html" data-page="employees"><i class="fas fa-user-tie"></i> الموظفين</a></li>
+                <li><a href="/users.html" data-page="users"><i class="fas fa-user-friends"></i> المستخدمون</a></li>
+                <li><a href="/categories.html" data-page="categories"><i class="fas fa-tags"></i> إدارة التصنيفات</a></li>
+                <li><a href="/warehouses.html" data-page="warehouses"><i class="fas fa-warehouse"></i> المخازن</a></li>
+                <li><a href="/sales.html" data-page="sales"><i class="fas fa-shopping-cart"></i> المبيعات</a></li>
+                <li><a href="/purchases.html" data-page="purchases"><i class="fas fa-truck"></i> المشتريات</a></li>
+                <li><a href="/suppliers.html" data-page="suppliers"><i class="fas fa-truck"></i> الموردين</a></li>
+                <li><a href="/general-accounts.html" data-page="general-accounts"><i class="fas fa-calculator"></i> الحسابات العامة</a></li>
+                <li><a href="#" id="sidebarLogoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+            </ul>
+        </div>
+        <div class="content-area">
+            <button class="back-btn" onclick="window.location.href='/suppliers.html'">&larr; رجوع</button>
+            <div class="page-header">
+                <h1>كشف حساب مورد</h1>
+            </div>
+            <div class="supplier-info" id="supplierInfo"></div>
+            <div class="table-container">
+                <table id="statementTable">
+                    <thead>
+                        <tr>
+                            <th>تاريخ الفاتورة</th>
+                            <th>رقم الفاتورة</th>
+                            <th>الإجمالي</th>
+                            <th>المدفوع</th>
+                            <th>المتبقي</th>
+                            <th>الحالة</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="summary" id="statementSummary"></div>
+            <button id="paymentBtn" class="payment-btn" style="display: none;">
+                <i class="fas fa-money-bill-wave"></i> تسديد نقدي
+            </button>
+            <div style="text-align:left; margin-top:20px;"><button id="exportSupplierStatementExcelBtn" class="action-button"><i class="fas fa-file-excel"></i> تصدير كشف الحساب Excel</button></div>
+            <div id="paymentsTableContainer" style="margin-top: 30px;"></div>
+        </div>
+    </div>
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>تسديد نقدي للمورد</h3>
+            <form id="paymentForm">
+                <div class="modal-form-group">
+                    <label for="paymentAmount">المبلغ المدفوع:</label>
+                    <input type="number" id="paymentAmount" name="amount" required step="0.01" min="0.01">
+                </div>
+                <div class="modal-form-group">
+                    <label for="paymentTreasury">الخزينة:</label>
+                    <select id="paymentTreasury" name="treasury" required>
+                        <option value="">اختر الخزينة</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="paymentDate">تاريخ الدفع:</label>
+                    <input type="date" id="paymentDate" name="date" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="paymentNotes">ملاحظات:</label>
+                    <input type="text" id="paymentNotes" name="notes" placeholder="ملاحظات إضافية (اختياري)">
+                </div>
+                <div class="modal-message" id="paymentModalMessage"></div>
+                <div class="modal-buttons">
+                    <button type="submit" class="modal-button">تأكيد الدفع</button>
+                    <button type="button" class="modal-button cancel" id="cancelPaymentBtn">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script>
+        const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
+        let currentSupplierId = null;
+        let currentRemainingAmount = 0;
+        function getSupplierId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('supplier');
+        }
+        async function fetchStatement() {
+            currentSupplierId = getSupplierId();
+            if (!currentSupplierId) return;
+            const res = await fetch(`${BASE_URL}/api/purchases/supplier/${currentSupplierId}`);
+            const data = await res.json();
+            renderSupplierInfo(data.supplier, data.openingBalance);
+            renderTable(data.purchases);
+            renderSummary(data);
+            // عرض جدول الدفعات إذا توفرت بيانات Transaction
+            if (data.supplierPayments) {
+                renderPaymentsTable(data.supplierPayments);
+            } else {
+                document.getElementById('paymentsTableContainer').innerHTML = '<div style="color:#888;text-align:center;">لا توجد دفعات مسجلة بعد.</div>';
+            }
+        }
+        function renderSupplierInfo(supplier, openingBalance) {
+            document.getElementById('supplierInfo').innerHTML = `
+                <span>الاسم:</span> ${supplier.name} &nbsp; | &nbsp;
+                <span>الهاتف:</span> ${supplier.phone || '-'} &nbsp; | &nbsp;
+                <span>العنوان:</span> ${supplier.address || '-'} &nbsp; | &nbsp;
+                <span>الرصيد الافتتاحي:</span> <b>${(openingBalance || 0).toFixed(2)}</b>
+            `;
+        }
+        function renderTable(purchases) {
+            const tbody = document.querySelector('#statementTable tbody');
+            tbody.innerHTML = '';
+            purchases.forEach(p => {
+                const remaining = (p.total || 0) - (p.paid || 0);
+                const status = p.status || (remaining <= 0 ? 'مدفوع' : 'أجل');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.date ? new Date(p.date).toLocaleDateString('en-GB') : '-'}</td>
+                        <td>${p.invoiceNumber || '-'}</td>
+                        <td>${(p.total || 0).toFixed(2)}</td>
+                        <td>${(p.paid || 0).toFixed(2)}</td>
+                        <td>${remaining.toFixed(2)}</td>
+                        <td>${status}</td>
+                        <td>${p.notes || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+        function renderSummary(data) {
+            const opening = data.openingBalance || 0;
+            // إجمالي المشتريات = مجموع كل الفواتير فقط (total)
+            const purchasesTotal = (data.purchases || []).reduce((sum, p) => sum + (p.total || 0), 0);
+            const total = opening + purchasesTotal;
+            // المدفوع = مجموع المدفوعات (من الفواتير + دفعات نقدية إذا متوفرة)
+            let paid = (data.purchases || []).reduce((sum, p) => sum + (p.paid || 0), 0);
+            if (Array.isArray(data.supplierPayments)) {
+                paid += data.supplierPayments.reduce((sum, t) => sum + (t.amount || 0), 0);
+            }
+            const remaining = total - paid;
+            document.getElementById('statementSummary').innerHTML = `
+                <b>الرصيد الافتتاحي:</b> ${opening.toFixed(2)} ج.م &nbsp; | &nbsp;
+                <b>إجمالي المشتريات:</b> ${purchasesTotal.toFixed(2)} ج.م &nbsp; | &nbsp;
+                <b>الإجمالي:</b> ${total.toFixed(2)} ج.م &nbsp; | &nbsp;
+                <b>المدفوع:</b> ${paid.toFixed(2)} ج.م &nbsp; | &nbsp;
+                <b>المتبقي:</b> <span style="color:${remaining > 0 ? 'red' : '#014C47'}">${remaining.toFixed(2)}</span> ج.م
+            `;
+            // إظهار زر الدفع دائمًا
+            document.getElementById('paymentBtn').style.display = 'inline-block';
+            currentRemainingAmount = remaining;
+        }
+        function renderPaymentsTable(payments) {
+            const container = document.getElementById('paymentsTableContainer');
+            if (!payments || !payments.length) {
+                container.innerHTML = '<div style="color:#888;text-align:center;">لا توجد دفعات مسجلة بعد.</div>';
+                return;
+            }
+            let html = `<table class="payments-table">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>المبلغ المدفوع</th>
+                        <th>الوصف</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            payments.forEach(p => {
+                html += `<tr>
+                    <td>${p.date ? new Date(p.date).toLocaleDateString('en-GB') : '-'}</td>
+                    <td>${(p.amount || 0).toFixed(2)} ج.م</td>
+                    <td>${p.description || '-'}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        // Payment modal logic
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentBtn = document.getElementById('paymentBtn');
+        const closeButton = paymentModal.querySelector('.close-button');
+        const cancelBtn = document.getElementById('cancelPaymentBtn');
+        const paymentForm = document.getElementById('paymentForm');
+        const paymentModalMessage = document.getElementById('paymentModalMessage');
+        // Set default date to today
+        document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+        paymentBtn.addEventListener('click', () => {
+            console.log('Payment button clicked');
+            paymentModal.style.display = 'flex';
+            loadTreasuries();
+            paymentModalMessage.style.display = 'none';
+        });
+        closeButton.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+            paymentForm.reset();
+        });
+        cancelBtn.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+            paymentForm.reset();
+        });
+        window.addEventListener('click', (event) => {
+            if (event.target === paymentModal) {
+                paymentModal.style.display = 'none';
+                paymentForm.reset();
+            }
+        });
+        async function loadTreasuries() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/treasuries`, {
+                    headers: {
+                        ...(localStorage.getItem('token') ? { 'x-auth-token': localStorage.getItem('token') } : {})
+                    }
+                });
+                const treasuries = await response.json();
+                const treasurySelect = document.getElementById('paymentTreasury');
+                treasurySelect.innerHTML = '<option value="">اختر الخزينة</option>';
+                if (Array.isArray(treasuries)) {
+                    treasuries.forEach(treasury => {
+                        treasurySelect.innerHTML += `<option value="${treasury._id}">${treasury.name} (الرصيد: ${treasury.currentBalance.toFixed(2)} ج.م)</option>`;
+                    });
+                } else {
+                    treasurySelect.innerHTML += '<option value="">تعذر تحميل الخزائن</option>';
+                    showMessage('تعذر تحميل الخزائن. يرجى التأكد من تسجيل الدخول أو إعادة تحميل الصفحة.', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading treasuries:', error);
+                const treasurySelect = document.getElementById('paymentTreasury');
+                treasurySelect.innerHTML = '<option value="">تعذر تحميل الخزائن</option>';
+                showMessage('حدث خطأ أثناء تحميل الخزائن. يرجى التأكد من الاتصال أو تسجيل الدخول.', 'error');
+            }
+        }
+        paymentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const treasuryId = document.getElementById('paymentTreasury').value;
+            const date = document.getElementById('paymentDate').value;
+            const notes = document.getElementById('paymentNotes').value;
+            if (amount > currentRemainingAmount) {
+                showMessage('المبلغ المدخل أكبر من المتبقي للمورد', 'error');
+                return;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/api/suppliers/${currentSupplierId}/payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(localStorage.getItem('token') ? { 'x-auth-token': localStorage.getItem('token') } : {})
+                    },
+                    body: JSON.stringify({ amount, treasuryId, date, notes })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showMessage('تم تسديد المبلغ بنجاح', 'success');
+                    paymentModal.style.display = 'none';
+                    paymentForm.reset();
+                    await fetchStatement();
+                } else {
+                    showMessage(result.message || 'فشل في تسديد المبلغ', 'error');
+                }
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                showMessage('حدث خطأ أثناء تسديد المبلغ', 'error');
+            }
+        });
+        function showMessage(message, type) {
+            paymentModalMessage.textContent = message;
+            paymentModalMessage.className = `modal-message ${type}`;
+            paymentModalMessage.style.display = 'block';
+        }
+        fetchStatement();
+        document.getElementById('exportSupplierStatementExcelBtn').onclick = async function () {
+            const supplierId = getSupplierId();
+            if (!supplierId) return alert('لم يتم تحديد المورد');
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${BASE_URL}/api/suppliers/${supplierId}/statement-excel`, {
+                    headers: token ? { 'x-auth-token': token } : {}
+                });
+                if (!response.ok) throw new Error('فشل في تصدير كشف الحساب');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `كشف_حساب_مورد_${supplierId}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('فشل في تصدير كشف الحساب: ' + (err.message || ''));
+            }
+        };
+    </script>
+</body>
+</html> 

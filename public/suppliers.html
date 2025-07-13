@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الموردين - MAJD Architecture</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e6e6e6; margin: 0; }
+        .header { background: #014C47; color: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .main-container { display: flex; }
+        .sidebar { width: 250px; background: #014C47; color: #fff; min-height: 100vh; padding-top: 20px; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar ul li { margin-bottom: 5px; }
+        .sidebar ul li a { color: #fff; text-decoration: none; display: flex; align-items: center; padding: 12px 20px; }
+        .sidebar ul li a i { margin-left: 10px; }
+        .sidebar ul li a:hover, .sidebar ul li.active a { background: #003a35; border-radius: 0 20px 20px 0; }
+        .content-area { flex: 1; padding: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h1 { color: #014C47; margin: 0; font-size: 28px; }
+        .form-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 30px; }
+        .form-row { display: flex; gap: 20px; margin-bottom: 15px; }
+        .form-row label { min-width: 90px; font-weight: bold; }
+        .form-row input, .form-row textarea { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 15px; }
+        .form-row textarea { resize: vertical; }
+        .form-actions { text-align: left; }
+        .form-actions button { background: #014C47; color: #fff; border: none; padding: 10px 25px; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        .form-actions button:hover { background: #003a35; }
+        .table-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px 15px; border: 1px solid #eee; text-align: right; }
+        th { background: #014C47; color: #fff; }
+        .action-btn { background: #eee; border: none; color: #014C47; padding: 6px 12px; border-radius: 4px; margin-left: 5px; cursor: pointer; font-size: 15px; }
+        .action-btn:hover { background: #014C47; color: #fff; }
+        @media (max-width: 900px) { .content-area { padding: 10px; } .form-row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MAJD Architecture</div>
+        <div><a href="/dashboard.html" style="color:#fff;text-decoration:none;">الرئيسية</a></div>
+    </div>
+    <div class="main-container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="/dashboard.html" data-page="dashboard"><i class="fas fa-home"></i>الرئيسية</a></li>
+                <li><a href="/projects.html" data-page="projects"><i class="fas fa-project-diagram"></i> المشاريع</a></li>
+                <li><a href="/clients.html" data-page="clients"><i class="fas fa-users"></i> العملاء</a></li>
+                <li><a href="/contractors.html" data-page="contractors"><i class="fas fa-hard-hat"></i> المقاولون</a></li>
+                <li><a href="/treasuries.html" data-page="treasuries"><i class="fas fa-boxes"></i> عرض الخزائن</a></li>
+                <li><a href="/general-expenses.html" data-page="general-expenses"><i class="fas fa-money-bill-wave"></i> المصروفات العامة</a></li>
+                <li><a href="/employees.html" data-page="employees"><i class="fas fa-user-tie"></i> الموظفين</a></li>
+                <li><a href="/users.html" data-page="users"><i class="fas fa-user-friends"></i> المستخدمون</a></li>
+                <li><a href="/categories.html" data-page="categories"><i class="fas fa-tags"></i> إدارة التصنيفات</a></li>
+                <li><a href="/warehouses.html" data-page="warehouses"><i class="fas fa-warehouse"></i> المخازن</a></li>
+                <li><a href="/sales.html" data-page="sales"><i class="fas fa-shopping-cart"></i> المبيعات</a></li>
+                <li><a href="/purchases.html" data-page="purchases"><i class="fas fa-truck"></i> المشتريات</a></li>
+                <li><a href="/suppliers.html" data-page="suppliers"><i class="fas fa-truck"></i> الموردين</a></li>
+                <li><a href="/general-accounts.html" data-page="general-accounts"><i class="fas fa-calculator"></i> الحسابات العامة</a></li>
+                <li><a href="#" id="sidebarLogoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+            </ul>
+        </div>
+        <div class="content-area">
+            <div class="page-header">
+                <h1>الموردين</h1>
+            </div>
+            <div class="form-container">
+                <form id="supplierForm">
+                    <div class="form-row">
+                        <label>اسم المورد *</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-row">
+                        <label>رقم الهاتف</label>
+                        <input type="text" id="phone">
+                    </div>
+                    <div class="form-row">
+                        <label>العنوان</label>
+                        <input type="text" id="address">
+                    </div>
+                    <div class="form-row">
+                        <label>ملاحظات</label>
+                        <textarea id="notes" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>حساب سابق</label>
+                        <input type="number" id="openingBalance" value="0" step="0.01">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="saveBtn">إضافة مورد</button>
+                        <button type="button" id="cancelEditBtn" style="display:none;">إلغاء التعديل</button>
+                    </div>
+                </form>
+            </div>
+            <div class="table-container">
+                <table id="suppliersTable">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>الهاتف</th>
+                            <th>العنوان</th>
+                            <th>ملاحظات</th>
+                            <th>حساب سابق</th>
+                            <th>تاريخ الإضافة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
+        const SUPPLIERS_API = BASE_URL + "/api/suppliers";
+        let editId = null;
+        async function fetchSuppliers() {
+            const res = await fetch(SUPPLIERS_API);
+            const data = await res.json();
+            renderTable(data);
+        }
+        function renderTable(suppliers) {
+            const tbody = document.querySelector('#suppliersTable tbody');
+            tbody.innerHTML = '';
+            suppliers.forEach(sup => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${sup.name}</td>
+                    <td>${sup.phone || '-'}</td>
+                    <td>${sup.address || '-'}</td>
+                    <td>${sup.notes || '-'}</td>
+                    <td>${sup.openingBalance?.toFixed(2) || '0.00'}</td>
+                    <td>${sup.createdAt ? new Date(sup.createdAt).toLocaleDateString('en-GB') : '-'}</td>
+                    <td>
+                        <button class="action-btn" onclick="editSupplier('${sup._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn" onclick="deleteSupplier('${sup._id}')"><i class="fas fa-trash"></i></button>
+                        <button class="action-btn" onclick="viewStatement('${sup._id}')"><i class="fas fa-file-invoice"></i> كشف حساب</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        document.getElementById('supplierForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const supplier = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                notes: document.getElementById('notes').value,
+                openingBalance: parseFloat(document.getElementById('openingBalance').value) || 0
+            };
+            if (editId) {
+                await fetch(`${SUPPLIERS_API}/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(supplier) });
+                editId = null;
+                document.getElementById('saveBtn').textContent = 'إضافة مورد';
+                document.getElementById('cancelEditBtn').style.display = 'none';
+            } else {
+                await fetch(SUPPLIERS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(supplier) });
+            }
+            this.reset();
+            fetchSuppliers();
+        };
+        window.editSupplier = async function(id) {
+            const res = await fetch(`${SUPPLIERS_API}/${id}`);
+            const sup = await res.json();
+            document.getElementById('name').value = sup.name;
+            document.getElementById('phone').value = sup.phone || '';
+            document.getElementById('address').value = sup.address || '';
+            document.getElementById('notes').value = sup.notes || '';
+            document.getElementById('openingBalance').value = sup.openingBalance || 0;
+            editId = id;
+            document.getElementById('saveBtn').textContent = 'تحديث';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+        };
+        window.deleteSupplier = async function(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المورد؟')) {
+                await fetch(`${SUPPLIERS_API}/${id}`, { method: 'DELETE' });
+                fetchSuppliers();
+            }
+        };
+        document.getElementById('cancelEditBtn').onclick = function() {
+            editId = null;
+            document.getElementById('supplierForm').reset();
+            document.getElementById('saveBtn').textContent = 'إضافة مورد';
+            this.style.display = 'none';
+        };
+        window.viewStatement = function(id) {
+            window.location.href = `/supplier-statement.html?supplier=${id}`;
+        };
+        fetchSuppliers();
+    </script>
+</body>
+</html> 
