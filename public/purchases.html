@@ -45,15 +45,89 @@
         .action-btn { background: #eee; border: none; color: #014C47; padding: 6px 12px; border-radius: 4px; margin-left: 5px; cursor: pointer; font-size: 15px; }
         .action-btn:hover { background: #014C47; color: #fff; }
         @media (max-width: 900px) { .content-area { padding: 10px; } .form-row { flex-direction: column; } }
+        @media (max-width: 768px) {
+            .header {
+                z-index: 3001;
+                position: fixed;
+                width: 100%;
+                right: 0;
+                left: 0;
+                top: 0;
+                justify-content: center;
+                gap: 20px;
+            }
+            .header .logo {
+                flex: 1;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .main-container {
+                padding-top: 65px;
+            }
+            .menu-toggle {
+                display: flex;
+                position: fixed;
+                top: 18px;
+                right: 18px;
+                z-index: 3002;
+                background: var(--primary-color);
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+                border: none;
+                outline: none;
+                transition: background 0.2s;
+            }
+            .menu-toggle i {
+                color: #fff;
+                font-size: 24px;
+            }
+            .menu-toggle:active,
+            .menu-toggle:hover {
+                background: var(--primary-dark);
+            }
+            .sidebar {
+                position: fixed;
+                top: 65px;
+                right: 0;
+                height: calc(100% - 65px);
+                width: 250px;
+                transform: translateX(100%);
+                z-index: 3000;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+                padding-top: 20px;
+            }
+            .sidebar.active { transform: translateX(0); }
+            .content-area { margin-right: 0; }
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1999;
+            }
+            .overlay.active { display: block; }
+        }
     </style>
 </head>
 <body>
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
     <div class="header">
         <div class="logo">MAJD Architecture</div>
         <div><a href="/dashboard.html" style="color:#fff;text-decoration:none;">الرئيسية</a></div>
     </div>
     <div class="main-container">
-        <div class="sidebar">
+        <div class="overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
             <ul>
                 <li><a href="/dashboard.html" data-page="dashboard"><i class="fas fa-home"></i>الرئيسية</a></li>
                 <li><a href="/projects.html" data-page="projects"><i class="fas fa-project-diagram"></i> المشاريع</a></li>
@@ -338,6 +412,71 @@
         fetchProducts();
         fetchPurchases();
     });
+    </script>
+    <script>
+        // كود تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+        document.getElementById('sidebarLogoutButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+        // Responsive Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        });
+        sidebar.addEventListener('click', (event) => {
+            const link = event.target.closest('a');
+            if (link && link.id !== 'sidebarLogoutButton') {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+        // تمييز العنصر النشط
+        sidebar.querySelectorAll('li.active').forEach(li => li.classList.remove('active'));
+        const currentPageLink = document.querySelector('.sidebar ul li a[data-page="purchases"]');
+        if (currentPageLink) {
+            currentPageLink.parentElement.classList.add('active');
+        }
+        // إخفاء روابط حسب الدور (نفس منطق الداشبورد)
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const decodedPayload = decodeURIComponent(escape(window.atob(base64)));
+                const payload = JSON.parse(decodedPayload);
+                const role = payload.user.role || '';
+                const addProjectLink = sidebar.querySelector('[data-page="add-project"]');
+                const usersLink = sidebar.querySelector('[data-page="users"]');
+                const addTreasuryLink = sidebar.querySelector('[data-page="add-treasury"]');
+                const treasuriesLink = sidebar.querySelector('[data-page="treasuries"]');
+                const contractorsLink = sidebar.querySelector('[data-page="contractors"]');
+                const clientsLink = sidebar.querySelector('[data-page="clients"]');
+                const generalExpensesLink = sidebar.querySelector('[data-page="general-expenses"]');
+                if (role === 'مهندس') {
+                    if (addProjectLink) addProjectLink.style.display = 'none';
+                    if (usersLink) usersLink.style.display = 'none';
+                    if (addTreasuryLink) addTreasuryLink.style.display = 'none';
+                    if (contractorsLink) contractorsLink.style.display = 'none';
+                    if (clientsLink) clientsLink.style.display = 'none';
+                    if (generalExpensesLink) generalExpensesLink.style.display = 'none';
+                }
+            } catch (e) { /* تجاهل أي خطأ */ }
+        }
     </script>
 </body>
 </html> 

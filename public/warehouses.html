@@ -32,22 +32,29 @@
             color: var(--light-text-color);
             padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             position: sticky;
             top: 0;
             z-index: 1000;
+            gap: 20px;
         }
         .header .logo {
             font-size: 24px;
             font-weight: bold;
             display: flex;
             align-items: center;
+            flex: 1;
+            justify-content: center;
         }
         .header .user-info {
             display: flex;
             align-items: center;
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
         }
         .header .user-info span {
             margin-right: 15px;
@@ -304,21 +311,55 @@
             border: 1px solid #008000;
         }
         @media (max-width: 768px) {
-            .header .user-info span { display: none; }
-            .menu-toggle { display: block; }
+            .header {
+                z-index: 3001;
+                position: fixed;
+                width: 100%;
+                right: 0;
+                left: 0;
+                top: 0;
+            }
+            .main-container {
+                padding-top: 65px;
+            }
+            .menu-toggle {
+                display: flex;
+                position: fixed;
+                top: 18px;
+                right: 18px;
+                z-index: 3002;
+                background: var(--primary-color);
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            }
             .sidebar {
                 position: fixed;
-                top: 0;
+                top: 65px;
                 right: 0;
-                height: 100%;
+                height: calc(100% - 65px);
                 width: var(--sidebar-width);
                 transform: translateX(100%);
-                z-index: 999;
+                z-index: 3000;
                 box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-                padding-top: 70px;
+                padding-top: 20px;
             }
             .sidebar.active { transform: translateX(0); }
             .content-area { margin-right: 0; }
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1999;
+            }
+            .overlay.active { display: block; }
         }
         @media (max-width: 900px) {
             .main-content, .card {
@@ -338,10 +379,11 @@
     </style>
 </head>
 <body>
+    <div id="dashboardMessage" style="display:none;"></div>
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
     <div class="header">
-        <button class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </button>
         <div class="logo">MAJD Architecture</div>
         <div class="user-info">
             <span id="loggedInUser"></span>
@@ -363,7 +405,7 @@
                 <li><a href="/categories.html" data-page="categories"><i class="fas fa-tags"></i> إدارة التصنيفات</a></li>
                 <li><a href="/warehouses.html" data-page="warehouses"><i class="fas fa-warehouse"></i> المخازن</a></li>
                 <li><a href="/sales.html" data-page="sales"><i class="fas fa-shopping-cart"></i> المبيعات</a></li>
-                <li><a href="/purchases.html" data-page="purchases"><i class="fas fa-truck"></i> المشتريات</a></li>
+                <li><a href="/purchases.html" data-page="purchases"><i class="fas fa-receipt"></i> المشتريات</a></li>
                 <li><a href="/suppliers.html" data-page="suppliers"><i class="fas fa-truck"></i> الموردين</a></li>
                 <li><a href="/general-accounts.html" data-page="general-accounts"><i class="fas fa-calculator"></i> الحسابات العامة</a></li>
                 <li><a href="#" id="sidebarLogoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
@@ -504,32 +546,6 @@
         </div>
     </div>
     <script>
-        // Responsive Sidebar Toggle
-const sidebar = document.getElementById('sidebar');
-const menuToggle = document.getElementById('menuToggle');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-    sidebarOverlay.classList.toggle('active');
-    document.body.classList.toggle('sidebar-open');
-});
-
-sidebarOverlay.addEventListener('click', () => {
-    sidebar.classList.remove('active');
-    sidebarOverlay.classList.remove('active');
-    document.body.classList.remove('sidebar-open');
-});
-
-// إغلاق السايدبار عند الضغط على أي لينك (على الموبايل)
-sidebar.addEventListener('click', (event) => {
-    const link = event.target.closest('a');
-    if (link && link.id !== 'sidebarLogoutButton') {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-        document.body.classList.remove('sidebar-open');
-    }
-});
         const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
         let warehouses = [];
         let currentWarehouseId = null;
@@ -988,5 +1004,75 @@ sidebar.addEventListener('click', (event) => {
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+        document.getElementById('logoutButton').addEventListener('click', logout);
+        document.getElementById('sidebarLogoutButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+        // تمييز العنصر النشط + إخفاء الروابط حسب الدور
+        document.addEventListener('DOMContentLoaded', function () {
+            // تمييز العنصر النشط
+            const sidebar = document.getElementById('sidebar');
+            sidebar.querySelectorAll('li.active').forEach(li => li.classList.remove('active'));
+            const currentPageLink = document.querySelector('.sidebar ul li a[data-page="warehouses"]');
+            if (currentPageLink) {
+                currentPageLink.parentElement.classList.add('active');
+            }
+            // إخفاء روابط حسب الدور
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const decodedPayload = decodeURIComponent(escape(window.atob(base64)));
+                    const payload = JSON.parse(decodedPayload);
+                    const role = payload.user.role || '';
+                    const addProjectLink = sidebar.querySelector('[data-page="add-project"]');
+                    const usersLink = sidebar.querySelector('[data-page="users"]');
+                    const addTreasuryLink = sidebar.querySelector('[data-page="add-treasury"]');
+                    const treasuriesLink = sidebar.querySelector('[data-page="treasuries"]');
+                    const contractorsLink = sidebar.querySelector('[data-page="contractors"]');
+                    const clientsLink = sidebar.querySelector('[data-page="clients"]');
+                    const generalExpensesLink = sidebar.querySelector('[data-page="general-expenses"]');
+                    if (role === 'مهندس') {
+                        if (addProjectLink) addProjectLink.style.display = 'none';
+                        if (usersLink) usersLink.style.display = 'none';
+                        if (addTreasuryLink) addTreasuryLink.style.display = 'none';
+                        if (contractorsLink) contractorsLink.style.display = 'none';
+                        if (clientsLink) clientsLink.style.display = 'none';
+                        if (generalExpensesLink) generalExpensesLink.style.display = 'none';
+                    }
+                } catch (e) { /* تجاهل أي خطأ */ }
+            }
+            // Responsive Sidebar Toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            });
+            // إغلاق السايدبار عند الضغط على أي لينك (على الموبايل)
+            sidebar.addEventListener('click', (event) => {
+                const link = event.target.closest('a');
+                if (link && link.id !== 'sidebarLogoutButton') {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        });
+    </script>
 </body>
 </html> 

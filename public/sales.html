@@ -872,6 +872,18 @@
             document.getElementById('servicePriceInput').value = 0;
         }
     </script>
+    <script>
+        // كود تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+        document.getElementById('logoutButton').addEventListener('click', logout);
+        document.getElementById('sidebarLogoutButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    </script>
 </body>
 </html> 
 
