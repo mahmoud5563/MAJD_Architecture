@@ -29,6 +29,8 @@ const generalAccountsRoutes = require('./routes/generalAccounts');
 const backupRoutes = require('./routes/backup');
 const suppliersRoutes = require('./routes/suppliers');
 const purchasesRoutes = require('./routes/purchases');
+const employeeAdvancesRoutes = require('./routes/employeeAdvances');
+const employeeOvertimesRoutes = require('./routes/employeeOvertimes');
 
 const { auth, authorizeRoles } = require('./middleware/authMiddleware');
 
@@ -97,6 +99,8 @@ app.use('/api/general-accounts', generalAccountsRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/purchases', purchasesRoutes);
+app.use('/api/employee-advances', employeeAdvancesRoutes);
+app.use('/api/employee-overtimes', employeeOvertimesRoutes);
 
 // تقديم الملفات الثابتة (frontend files)
 app.use(express.static(path.join(__dirname, '../public')));
