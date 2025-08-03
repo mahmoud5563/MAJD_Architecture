@@ -20,6 +20,8 @@ const Sale = require('../models/Sale');
 const SaleReturn = require('../models/SaleReturn');
 const StockOperation = require('../models/StockOperation');
 const Warehouse = require('../models/Warehouse');
+const Purchase = require('../models/Purchase');
+const Supplier = require('../models/Supplier');
 
 // Function to clean data and remove invalid references
 const cleanDataForImport = (data) => {
@@ -58,14 +60,14 @@ router.get('/export', async (req, res) => {
       clients: await Client.find({}),
       generalExpenses: await GeneralExpense.find({}),
       employees: await Employee.find({}),
-      employeeAdvances: await EmployeeAdvance.find({}),
-      employeeOvertimes: await EmployeeOvertime.find({}),
       products: await Product.find({}),
       sales: await Sale.find({}),
       saleReturns: await SaleReturn.find({}),
       stockOperations: await StockOperation.find({}),
       warehouses: await Warehouse.find({}),
       salaryTransactions: await SalaryTransaction.find({}),
+      purchases: await Purchase.find({}),
+      suppliers: await Supplier.find({}),
     };
     res.setHeader('Content-Disposition', 'attachment; filename=backup.json');
     res.setHeader('Content-Type', 'application/json');
@@ -95,14 +97,14 @@ router.post('/import', async (req, res) => {
       Client.deleteMany({}),
       GeneralExpense.deleteMany({}),
       Employee.deleteMany({}),
-      EmployeeAdvance.deleteMany({}),
-      EmployeeOvertime.deleteMany({}),
       Product.deleteMany({}),
       Sale.deleteMany({}),
       SaleReturn.deleteMany({}),
       StockOperation.deleteMany({}),
       Warehouse.deleteMany({}),
       SalaryTransaction.deleteMany({}),
+      Purchase.deleteMany({}),
+      Supplier.deleteMany({}),
     ]);
     // استيراد البيانات الجديدة
     if (cleanedData.users && cleanedData.users.length > 0) await User.insertMany(cleanedData.users);
@@ -124,6 +126,8 @@ router.post('/import', async (req, res) => {
     if (cleanedData.saleReturns && cleanedData.saleReturns.length > 0) await SaleReturn.insertMany(cleanedData.saleReturns);
     if (cleanedData.stockOperations && cleanedData.stockOperations.length > 0) await StockOperation.insertMany(cleanedData.stockOperations);
     if (cleanedData.warehouses && cleanedData.warehouses.length > 0) await Warehouse.insertMany(cleanedData.warehouses);
+    if (cleanedData.purchases && cleanedData.purchases.length > 0) await Purchase.insertMany(cleanedData.purchases);
+    if (cleanedData.suppliers && cleanedData.suppliers.length > 0) await Supplier.insertMany(cleanedData.suppliers);
     res.status(200).json({ message: 'تم استيراد النسخة الاحتياطية (بيانات + مرفقات) بنجاح.' });
   } catch (err) {
     res.status(500).json({ message: 'فشل في استيراد النسخة الاحتياطية', error: err.message });

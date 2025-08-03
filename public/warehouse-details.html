@@ -218,6 +218,48 @@
             .content-area { margin-right: 0; }
             .section { padding: 10px; }
         }
+        #editStockModal {
+            display: none;
+            position: fixed;
+            z-index: 4000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.45);
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.2s;
+        }
+        #editStockModal .modal-content {
+            background: #fff;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 95%;
+            margin: auto;
+            padding: 30px 20px 20px 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #editStockModal .close-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 22px;
+            color: #014C47;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        #editStockModal .modal-message {
+            margin-top: 10px;
+            color: #28a745;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -343,8 +385,8 @@
       </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
         
         // التحقق من تسجيل الدخول
         document.addEventListener('DOMContentLoaded', function() {
@@ -699,10 +741,44 @@
                 alert('حدث خطأ أثناء حذف العملية');
             }
         }
-        // تعديل عملية مخزنية (placeholder)
+        let currentEditOperationId = null;
         function editStockOperation(id) {
-            alert('ميزة التعديل قيد التطوير. سيتم تفعيلها قريباً.');
+            const op = allOperations.find(o => o._id === id);
+            if (!op) return;
+            currentEditOperationId = id;
+            document.getElementById('editOperationQuantity').value = op.quantity;
+            document.getElementById('editOperationDate').value = op.date ? new Date(op.date).toISOString().split('T')[0] : '';
+            document.getElementById('editOperationNotes').value = op.notes || '';
+            document.getElementById('editStockMessage').textContent = '';
+            document.getElementById('editStockModal').style.display = 'block';
         }
+        function closeEditStockModal() {
+            document.getElementById('editStockModal').style.display = 'none';
+            currentEditOperationId = null;
+        }
+        document.getElementById('editStockForm').onsubmit = async function(e) {
+            e.preventDefault();
+            if (!currentEditOperationId) return;
+            const quantity = parseFloat(document.getElementById('editOperationQuantity').value);
+            const date = document.getElementById('editOperationDate').value;
+            const notes = document.getElementById('editOperationNotes').value;
+            try {
+                const res = await fetch(`${BASE_URL}/api/stock-operations/${currentEditOperationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ quantity, date, notes })
+                });
+                if (!res.ok) throw new Error('تعذر تحديث العملية');
+                document.getElementById('editStockMessage').textContent = 'تم تحديث العملية بنجاح';
+                closeEditStockModal();
+                loadOperations();
+            } catch (err) {
+                document.getElementById('editStockMessage').textContent = 'حدث خطأ أثناء التحديث';
+            }
+        };
     </script>
 </body>
 </html> 

@@ -387,12 +387,13 @@
             </div>
         </div>
     </div>
+    <script src="config.js"></script>
     <script>
         document.getElementById('loggedInUser').textContent = localStorage.getItem('username') || '';
         document.querySelectorAll('.sidebar ul li a').forEach(a => {
             if (a.getAttribute('href') === window.location.pathname) a.classList.add('active');
         });
-        const BASE_URL = "https://da8b3c236ce5.ngrok-free.app";
+        
         document.getElementById('filterForm').addEventListener('submit', function(e) {
             e.preventDefault();
             fetchAccounts();
